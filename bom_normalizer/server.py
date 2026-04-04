@@ -60,6 +60,25 @@ app.add_middleware(
 )
 
 
+@app.get('/')
+async def root():
+    """Root endpoint - API information"""
+    return {
+        'name': 'BOM Normalizer Environment',
+        'version': '1.0.0',
+        'description': 'OpenEnv agent training environment for BOM normalization',
+        'endpoints': {
+            'health': '/health',
+            'tasks': '/tasks',
+            'reset': '/reset',
+            'step': '/step',
+            'state': '/state',
+            'docs': '/docs'
+        },
+        'status': 'running'
+    }
+
+
 @app.get('/health')
 async def health():
     """Health check endpoint"""
