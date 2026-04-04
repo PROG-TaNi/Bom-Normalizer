@@ -206,12 +206,12 @@ python inference.py
 | Hard | 0.7853 | 0.4200* | 0.8500 | 0.5000+ |
 | **Average** | **0.5802** | **0.6067*** | **0.9433** | **0.6667+** |
 
-*Random Agent: Submit without normalization (partial credit from grading)*  
-*Baseline LLM: Estimated scores with Llama-3.3-70B-Instruct (run inference.py for actual scores)*  
+*Random Agent: Verified scores from inference run (submit without normalization - partial credit from grading)*  
+*Baseline LLM: Estimated scores with Llama-3.3-70B-Instruct (requires Inference API access)*  
 *Human Expert: Manual normalization by supply chain engineer*  
 *Competition Target: Minimum score to be competitive*
 
-**Note:** Baseline LLM scores marked with * are estimates. Run `python inference.py` with your API key to get actual scores.
+**Note:** Random agent scores have been verified through actual inference run. The grading system awards partial credit even without normalization due to sophisticated scoring (Levenshtein similarity, unit conversion, etc.).
 
 ---
 
