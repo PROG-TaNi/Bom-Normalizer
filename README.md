@@ -1,3 +1,19 @@
+---
+title: BOM Normalizer
+emoji: 🔧
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+license: mit
+tags:
+  - openenv
+  - reinforcement-learning
+  - supply-chain
+  - data-cleaning
+  - electronics
+---
+
 # BOM Normalizer - Supply Chain Intelligence Environment
 
 > **OpenEnv Hackathon 2025 Submission**  
