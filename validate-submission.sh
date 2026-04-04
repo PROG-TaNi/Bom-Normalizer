@@ -10,19 +10,16 @@
 #   - curl (usually pre-installed)
 #
 # Run:
-#   curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/scripts/validate-submission.sh | bash -s -- <ping_url> [repo_dir]
-#
-#   Or download and run locally:
-#     chmod +x validate-submission.sh
-#     ./validate-submission.sh <ping_url> [repo_dir]
+#   chmod +x validate-submission.sh
+#   ./validate-submission.sh <ping_url> [repo_dir]
 #
 # Arguments:
 #   ping_url   Your HuggingFace Space URL (e.g. https://your-space.hf.space)
 #   repo_dir   Path to your repo (default: current directory)
 #
 # Examples:
-#   ./validate-submission.sh https://my-team.hf.space
-#   ./validate-submission.sh https://my-team.hf.space ./my-repo
+#   ./validate-submission.sh https://tani-prog-bom-normalizer.hf.space
+#   ./validate-submission.sh https://tani-prog-bom-normalizer.hf.space ./bom-normalizer
 #
 
 set -uo pipefail
