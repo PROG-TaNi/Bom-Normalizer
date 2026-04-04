@@ -1,0 +1,96 @@
+name: bom-normalizer
+version: 1.0.0
+description: |
+  Enterprise-grade Bill of Materials (BOM) normalization environment for training AI agents
+  on real-world supply chain data cleaning tasks. Models electronics procurement workflows
+  with vendor aliases, unit conversions, and duplicate detection across three difficulty levels.
+
+tags:
+  - supply-chain
+  - data-cleaning
+  - electronics
+  - procurement
+  - normalization
+  - openenv
+
+tasks:
+  - id: easy
+    difficulty: easy
+    description: Normalize vendor names across 10 BOM rows with ambiguous abbreviations
+    max_steps: 30
+    
+  - id: medium
+    difficulty: medium
+    description: Normalize vendor, value, and package fields across 50 rows with mixed units
+    max_steps: 100
+    
+  - id: hard
+    difficulty: hard
+    description: Full normalization with deduplication across 100 rows including edge cases and duplicates
+    max_steps: 250
+
+action_space:
+  type: discrete
+  actions:
+    - normalize_vendor: Normalize vendor name for a specific row
+    - normalize_value: Normalize component value with unit conversion
+    - normalize_package: Normalize package/footprint designation
+    - normalize_part: Normalize manufacturer part number
+    - merge_rows: Mark rows as duplicates and merge quantities
+    - flag_anomaly: Flag suspicious or invalid data
+    - inspect_row: Reveal gold standard for one row at a reward cost
+    - batch_normalize: Normalize all matching rows at once
+    - undo_last: Revert previous action at a reward cost
+    - submit: Complete episode and trigger final grading
+
+observation_space:
+  type: structured
+  fields:
+    - task_id: Current task identifier
+    - task_description: Human-readable task description
+    - rows: List of BOM rows with normalization status per field
+    - step_count: Current step number
+    - max_steps: Maximum steps allowed for this task
+    - fields_remaining: Count of fields still needing normalization
+    - last_action_result: Result message from previous action
+    - cumulative_reward: Total reward accumulated this episode
+    - hint_budget: Remaining inspect_row calls available
+    - done: Whether episode has ended
+
+reward:
+  type: dense
+  range: [-0.30, +0.30]
+  description: |
+    Dense reward signal at every step.
+    Correct field normalization: +0.10
+    Wrong normalization: -0.05
+    Invalid action: -0.05
+    Inspect hint used: -0.02
+    Batch normalize correct row: +0.15
+    Batch normalize wrong row: -0.10
+    Undo action: -0.01
+    Final episode score: deterministic [0.0, 1.0]
+
+endpoints:
+  - path: /health
+    method: GET
+    description: Health check
+  - path: /tasks
+    method: GET
+    description: List available tasks
+  - path: /reset
+    method: POST
+    description: Reset environment for a task
+  - path: /step
+    method: POST
+    description: Execute one action
+  - path: /state
+    method: GET
+    description: Get current environment state
+
+runtime:
+  language: python
+  python_version: "3.11"
+  framework: fastapi
+  port: 7860
+  dependencies: requirements.txt

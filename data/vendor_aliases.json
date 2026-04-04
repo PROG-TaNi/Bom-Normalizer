@@ -1,0 +1,22 @@
+{
+  "Texas Instruments": ["TI", "T.I.", "Texas Inst.", "Texas Instru.", "TI Inc", "Texas Instruments Inc"],
+  "Murata Manufacturing": ["Murata", "Murata Mfg", "Murata Mfg Co", "MURATA", "Murata Manufacturing Co"],
+  "STMicroelectronics": ["ST", "STM", "STMicro", "ST Micro", "ST Microelectronics", "STMicroelectronics NV"],
+  "Vishay Intertechnology": ["Vishay", "Vishay Dale", "Vishay Intertec", "Vishay Intertechnology Inc"],
+  "Infineon Technologies": ["Infineon", "Infineon Tech", "IFX", "Infineon Technologies AG"],
+  "NXP Semiconductors": ["NXP", "Freescale", "NXP Semi", "NXP Semiconductors NV"],
+  "Renesas Electronics": ["Renesas", "Renesas Elec", "Hitachi Renesas", "Renesas Electronics Corp"],
+  "ON Semiconductor": ["ON Semi", "ON", "OnSemi", "ON Semiconductor Corp", "Fairchild"],
+  "Analog Devices": ["ADI", "Analog Dev", "Analog Devices Inc", "Linear Technology"],
+  "Microchip Technology": ["Microchip", "MCHP", "Microchip Tech", "Atmel"],
+  "Maxim Integrated": ["Maxim", "Maxim Int", "Maxim Integrated Products"],
+  "Cypress Semiconductor": ["Cypress", "Cypress Semi", "CY", "Cypress Semiconductor Corp"],
+  "Broadcom": ["Broadcom Inc", "Avago", "Broadcom Ltd"],
+  "Qualcomm": ["QCOM", "Qualcomm Inc", "Qualcomm Technologies"],
+  "Intel": ["Intel Corp", "Intel Corporation", "INTC"],
+  "Samsung": ["Samsung Electro-Mechanics", "Samsung Semi", "Samsung Electronics"],
+  "Toshiba": ["Toshiba Corp", "Toshiba Electronic", "Toshiba Semiconductor"],
+  "Rohm Semiconductor": ["ROHM", "Rohm", "Rohm Co Ltd"],
+  "Panasonic": ["Panasonic Corp", "Panasonic Electronic", "Matsushita"],
+  "TDK Corporation": ["TDK", "TDK Corp", "TDK Electronics"]
+}

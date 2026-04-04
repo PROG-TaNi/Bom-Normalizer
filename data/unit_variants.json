@@ -1,0 +1,30 @@
+{
+  "resistance": {
+    "K": {"multiplier": 1000, "canonical_unit": ""},
+    "k": {"multiplier": 1000, "canonical_unit": ""},
+    "M": {"multiplier": 1000000, "canonical_unit": ""},
+    "kΩ": {"multiplier": 1000, "canonical_unit": ""},
+    "kohm": {"multiplier": 1000, "canonical_unit": ""},
+    "MΩ": {"multiplier": 1000000, "canonical_unit": ""},
+    "Mohm": {"multiplier": 1000000, "canonical_unit": ""}
+  },
+  "capacitance": {
+    "nF": {"multiplier": 1e-9, "canonical_unit": "e-9", "express_in": "farads"},
+    "mF": {"multiplier": 1e-3, "canonical_unit": "e-3", "express_in": "farads"},
+    "uF": {"multiplier": 1e-6, "canonical_unit": "e-6", "express_in": "farads"},
+    "µF": {"multiplier": 1e-6, "canonical_unit": "e-6", "express_in": "farads"},
+    "pF": {"multiplier": 1e-12, "canonical_unit": "e-12", "express_in": "farads"}
+  },
+  "inductance": {
+    "uH": {"multiplier": 1e-6, "canonical_unit": "e-6", "express_in": "henries"},
+    "µH": {"multiplier": 1e-6, "canonical_unit": "e-6", "express_in": "henries"},
+    "mH": {"multiplier": 1e-3, "canonical_unit": "e-3", "express_in": "henries"},
+    "nH": {"multiplier": 1e-9, "canonical_unit": "e-9", "express_in": "henries"}
+  },
+  "voltage": {
+    "v3v3": "3.3",
+    "3v3": "3.3",
+    "5v0": "5.0",
+    "1v8": "1.8"
+  }
+}
