@@ -28,8 +28,8 @@ export default function BOMTable({ observation }: Props) {
 
   if (!observation) {
     return (
-      <div className="p-8 text-center text-gray-400">
-        <p>No episode loaded. Click "Reset Episode" to start.</p>
+      <div className="p-12 text-center text-gray-400">
+        <p className="text-base">No episode loaded. Click <span className="font-semibold text-emerald-600">Reset Episode</span> to start.</p>
       </div>
     )
   }
@@ -47,7 +47,7 @@ export default function BOMTable({ observation }: Props) {
   return (
     <div>
       {/* Filters */}
-      <div className="p-4 border-b border-navy-700 flex gap-4">
+      <div className="p-4 border-b border-gray-200 flex gap-4">
         <div className="flex-1 relative">
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
@@ -55,14 +55,14 @@ export default function BOMTable({ observation }: Props) {
             placeholder="Filter rows... (vendor, part, value)"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-navy-700 border border-navy-600 rounded text-sm focus:outline-none focus:border-emerald-500"
+            className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
           />
         </div>
         
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 bg-navy-700 border border-navy-600 rounded text-sm focus:outline-none focus:border-emerald-500"
+          className="px-4 py-2 bg-white border border-gray-300 rounded text-sm text-gray-700 focus:outline-none focus:border-emerald-500"
         >
           <option value="all">All Status</option>
           <option value="raw">RAW</option>
@@ -75,7 +75,7 @@ export default function BOMTable({ observation }: Props) {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-navy-700 text-xs uppercase text-gray-400">
+          <thead className="bg-gray-50 text-xs uppercase text-gray-500 border-b border-gray-200">
             <tr>
               <th className="px-4 py-3 text-left">#</th>
               <th className="px-4 py-3 text-left">Status</th>
@@ -86,32 +86,32 @@ export default function BOMTable({ observation }: Props) {
               <th className="px-4 py-3 text-right">QTY</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-navy-700">
+          <tbody className="divide-y divide-gray-100">
             {filteredRows.map((row) => (
               <tr
                 key={row.row_id}
                 className={clsx(
-                  'hover:bg-navy-700/50 transition-colors',
-                  row.status === 'merged' && 'opacity-50'
+                  'hover:bg-slate-50 transition-colors',
+                  row.status === 'merged' && 'opacity-40'
                 )}
               >
-                <td className="px-4 py-3 text-sm text-gray-400">{row.row_id}</td>
+                <td className="px-4 py-3 text-sm text-gray-400 font-mono">{row.row_id}</td>
                 <td className="px-4 py-3">
                   <span className={clsx(
-                    'px-2 py-1 rounded text-xs font-medium uppercase',
-                    row.status === 'raw' && 'bg-gray-700 text-gray-300',
-                    row.status === 'normalized' && 'bg-emerald-700 text-emerald-200',
-                    row.status === 'flagged' && 'bg-yellow-700 text-yellow-200',
-                    row.status === 'merged' && 'bg-blue-700 text-blue-200'
+                    'px-2 py-1 rounded text-xs font-medium uppercase border',
+                    row.status === 'raw' && 'bg-gray-100 text-gray-600 border-gray-300',
+                    row.status === 'normalized' && 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                    row.status === 'flagged' && 'bg-amber-50 text-amber-700 border-amber-200',
+                    row.status === 'merged' && 'bg-blue-50 text-blue-700 border-blue-200'
                   )}>
                     {row.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm">{row.vendor_name}</td>
-                <td className="px-4 py-3 text-sm font-mono text-emerald-400">{row.part_number}</td>
-                <td className="px-4 py-3 text-sm font-mono">{row.value}</td>
-                <td className="px-4 py-3 text-sm font-mono text-blue-400">{row.package}</td>
-                <td className="px-4 py-3 text-sm text-right">{row.quantity}</td>
+                <td className="px-4 py-3 text-sm text-gray-800 font-medium">{row.vendor_name}</td>
+                <td className="px-4 py-3 text-sm font-mono text-emerald-700">{row.part_number}</td>
+                <td className="px-4 py-3 text-sm font-mono text-gray-700">{row.value}</td>
+                <td className="px-4 py-3 text-sm font-mono text-blue-600">{row.package}</td>
+                <td className="px-4 py-3 text-sm text-right text-gray-600">{row.quantity}</td>
               </tr>
             ))}
           </tbody>

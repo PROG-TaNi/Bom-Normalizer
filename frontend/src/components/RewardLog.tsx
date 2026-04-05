@@ -11,32 +11,32 @@ interface Props {
 
 export default function RewardLog({ observation }: Props) {
   return (
-    <div className="bg-navy-800 rounded-lg border border-navy-700 p-6">
+    <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
       <div className="flex items-center gap-2 mb-4">
-        <Activity className="w-4 h-4 text-emerald-400" />
-        <h3 className="text-sm font-semibold text-gray-400 uppercase">Reward Log</h3>
+        <Activity className="w-4 h-4 text-emerald-600" />
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Reward Log</h3>
       </div>
 
       {!observation ? (
-        <div className="text-xs text-gray-500 font-mono">
+        <div className="text-xs text-gray-400 font-mono">
           Waiting for actions...
         </div>
       ) : (
-        <div className="space-y-2">
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-400">Last Reward:</span>
-            <span className={`font-mono font-bold ${
-              observation.last_reward > 0 ? 'text-emerald-400' :
-              observation.last_reward < 0 ? 'text-red-400' :
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-500">Last Reward</span>
+            <span className={`font-mono font-bold text-base ${
+              observation.last_reward > 0 ? 'text-emerald-600' :
+              observation.last_reward < 0 ? 'text-red-500' :
               'text-gray-400'
             }`}>
               {observation.last_reward > 0 ? '+' : ''}{observation.last_reward.toFixed(2)}
             </span>
           </div>
           
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-400">Cumulative:</span>
-            <span className="font-mono font-bold text-emerald-400">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-500">Cumulative</span>
+            <span className="font-mono font-bold text-base text-emerald-600">
               {observation.cumulative_reward.toFixed(2)}
             </span>
           </div>

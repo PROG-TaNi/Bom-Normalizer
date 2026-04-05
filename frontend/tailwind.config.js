@@ -8,9 +8,10 @@ export default {
     extend: {
       colors: {
         navy: {
-          900: '#0a1628',
-          800: '#0f2137',
-          700: '#1a2f47'
+          900: '#f1f5f9',
+          800: '#ffffff',
+          700: '#e2e8f0',
+          600: '#cbd5e1'
         }
       }
     },
