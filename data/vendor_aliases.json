@@ -14,9 +14,12 @@
   "Broadcom": ["Broadcom Inc", "Avago", "Broadcom Ltd"],
   "Qualcomm": ["QCOM", "Qualcomm Inc", "Qualcomm Technologies"],
   "Intel": ["Intel Corp", "Intel Corporation", "INTC"],
-  "Samsung": ["Samsung Electro-Mechanics", "Samsung Semi", "Samsung Electronics"],
+  "Samsung Electro-Mechanics": ["Samsung", "SEC", "Samsung Electro", "SAMSUNG", "Samsung Electro-Mechanics Co"],
   "Toshiba": ["Toshiba Corp", "Toshiba Electronic", "Toshiba Semiconductor"],
   "Rohm Semiconductor": ["ROHM", "Rohm", "Rohm Co Ltd"],
   "Panasonic": ["Panasonic Corp", "Panasonic Electronic", "Matsushita"],
-  "TDK Corporation": ["TDK", "TDK Corp", "TDK Electronics"]
+  "TDK Corporation": ["TDK", "TDK Corp", "TDK Electronics"],
+  "Yageo": ["YAGEO", "Yageo Corp", "Yageo Corporation"],
+  "Bourns": ["BOURNS", "Bourns Inc", "Bourns Electronics"],
+  "Wurth Elektronik": ["Wurth", "WE", "Würth", "Wurth Electronics", "WURTH"]
 }

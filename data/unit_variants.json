@@ -1,19 +1,15 @@
 {
   "resistance": {
-    "K": {"multiplier": 1000, "canonical_unit": ""},
-    "k": {"multiplier": 1000, "canonical_unit": ""},
-    "M": {"multiplier": 1000000, "canonical_unit": ""},
-    "kΩ": {"multiplier": 1000, "canonical_unit": ""},
-    "kohm": {"multiplier": 1000, "canonical_unit": ""},
-    "MΩ": {"multiplier": 1000000, "canonical_unit": ""},
-    "Mohm": {"multiplier": 1000000, "canonical_unit": ""}
+    "Ohm":  ["ohm", "ohms", "Ω", "R", "OHM", "OHMS"],
+    "kOhm": ["kilohm", "kohm", "kΩ", "KΩ", "KOHM", "k", "K"],
+    "MOhm": ["megohm", "mohm", "MΩ", "MOHM", "M", "meg"]
   },
   "capacitance": {
-    "nF": {"multiplier": 1e-9, "canonical_unit": "e-9", "express_in": "farads"},
-    "mF": {"multiplier": 1e-3, "canonical_unit": "e-3", "express_in": "farads"},
-    "uF": {"multiplier": 1e-6, "canonical_unit": "e-6", "express_in": "farads"},
-    "µF": {"multiplier": 1e-6, "canonical_unit": "e-6", "express_in": "farads"},
-    "pF": {"multiplier": 1e-12, "canonical_unit": "e-12", "express_in": "farads"}
+    "F":  ["farad", "Farad", "FARAD"],
+    "mF": ["millifarad", "millifarads", "MF"],
+    "uF": ["microfarad", "microfarads", "μF", "UF", "uf", "u"],
+    "nF": ["nanofarad", "nanofarads", "NF", "nf", "n"],
+    "pF": ["picofarad", "picofarads", "PF", "pf", "p"]
   },
   "inductance": {
     "uH": {"multiplier": 1e-6, "canonical_unit": "e-6", "express_in": "henries"},
@@ -23,8 +19,38 @@
   },
   "voltage": {
     "v3v3": "3.3",
-    "3v3": "3.3",
-    "5v0": "5.0",
-    "1v8": "1.8"
+    "3v3":  "3.3",
+    "5v0":  "5.0",
+    "1v8":  "1.8"
+  },
+  "current": {
+    "A":  ["amp", "amps", "ampere", "Ampere", "AMP", "Amps"],
+    "mA": ["milliamp", "milliamps", "milliampere", "MA", "milli-amp"],
+    "uA": ["microamp", "microamps", "microampere", "μA", "micro-amp"]
+  },
+  "frequency": {
+    "Hz":  ["hertz", "Hertz", "HZ"],
+    "kHz": ["kilohertz", "KHz", "KHZ", "khz", "kilo-hertz"],
+    "MHz": ["megahertz", "MHZ", "Mhz", "mhz", "mega-hertz"],
+    "GHz": ["gigahertz", "GHZ", "Ghz", "ghz", "giga-hertz"]
+  },
+  "power": {
+    "W":  ["watt", "watts", "Watt", "WATT", "Watts"],
+    "mW": ["milliwatt", "milliwatts", "MW", "milli-watt"],
+    "kW": ["kilowatt", "kilowatts", "KW", "kilo-watt"]
+  },
+  "length": {
+    "mm":   ["millimeter", "millimeters", "MM", "millimetre"],
+    "cm":   ["centimeter", "centimeters", "CM", "centimetre"],
+    "m":    ["meter", "meters", "metre", "metres"],
+    "inch": ["in", "IN", "inches", "Inch", "\""],
+    "ft":   ["foot", "feet", "FT", "Ft"]
+  },
+  "weight": {
+    "kg": ["kilogram", "kilograms", "KG", "Kg"],
+    "g":  ["gram", "grams", "GR", "Gr", "gm"],
+    "mg": ["milligram", "milligrams", "MG"],
+    "lb": ["pound", "pounds", "LB", "lbs", "LBS"],
+    "oz": ["ounce", "ounces", "OZ"]
   }
 }

@@ -52,6 +52,7 @@ class Action(BaseModel):
     duplicate_row_id: Optional[int] = Field(default=None, description="For MERGE_ROWS: canonical row ID")
     field: Optional[str] = Field(default=None, description="For BATCH_NORMALIZE: field to normalize (vendor_name/value/package)")
     from_value: Optional[str] = Field(default=None, description="For BATCH_NORMALIZE: value to replace")
+    reason: Optional[str] = Field(default=None, description="Optional reason for this action")
 
     model_config = ConfigDict(extra='forbid')
 

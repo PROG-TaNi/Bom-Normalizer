@@ -3,7 +3,9 @@ FastAPI Server
 HTTP API for BOM Normalizer Environment
 """
 
+import logging
 import os
+import re
 import json
 import pandas as pd
 from contextlib import asynccontextmanager
@@ -13,13 +15,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from openai import OpenAI
 
+logger = logging.getLogger(__name__)
+
 # Load environment variables from .env file
 try:
     from dotenv import load_dotenv
     load_dotenv()
-    print("[SERVER] Loaded .env file")
+    logger.info("Loaded .env file")
 except ImportError:
-    print("[SERVER] python-dotenv not installed, using system environment variables")
+    logger.info("python-dotenv not installed, using system environment variables")
 
 from .env import BOMEnv
 from .models import Action, Observation, StepResponse, BOMRow
@@ -271,11 +275,6 @@ async def auto_normalize(
     api_base_url = os.getenv('API_BASE_URL', 'http://localhost:11434/v1')
     model_name = os.getenv('MODEL_NAME', 'llama3.2')
     
-    print(f"[AUTO-NORMALIZE] Configuration:")
-    print(f"  API Base URL: {api_base_url}")
-    print(f"  Model Name: {model_name}")
-    print(f"  API Key: {'*' * len(api_key) if api_key else 'None'}")
-    
     # Initialize OpenAI client
     if 'openai.com' in api_base_url:
         client = OpenAI(api_key=api_key)
@@ -349,12 +348,9 @@ IMPORTANT: You must normalize ALL fields in ALL rows before submitting. Fields r
 Choose ONE action to normalize a field in one row."""
         
         try:
-            # Call LLM
-            log_file = open("auto_normalize_debug.log", "a")
-            log_file.write(f"\n[AUTO-NORMALIZE] Step {step + 1}: Calling LLM...\n")
-            log_file.write(f"[AUTO-NORMALIZE] User prompt preview: {user_prompt[:200]}...\n")
-            log_file.flush()
-            
+            logger.debug("Step %d: Calling LLM...", step + 1)
+            logger.debug("User prompt preview: %s...", user_prompt[:200])
+
             response = client.chat.completions.create(
                 model=model_name,
                 messages=[
@@ -364,63 +360,44 @@ Choose ONE action to normalize a field in one row."""
                 temperature=0.0,
                 max_tokens=100
             )
-            
-            log_file.write(f"[AUTO-NORMALIZE] Step {step + 1}: LLM call completed\n")
-            log_file.flush()
-            
+
+            logger.debug("Step %d: LLM call completed", step + 1)
+
             if not response or not response.choices or len(response.choices) == 0:
-                log_file.write(f"[AUTO-NORMALIZE] ERROR: LLM returned no choices\n")
-                log_file.close()
                 raise ValueError("LLM returned no choices")
-            
+
             response_text = response.choices[0].message.content
-            
+
             if response_text is None:
-                log_file.write(f"[AUTO-NORMALIZE] ERROR: LLM returned None content\n")
-                log_file.close()
                 raise ValueError("LLM returned None content")
-            
+
             response_text = response_text.strip()
-            log_file.write(f"[AUTO-NORMALIZE] Step {step + 1}: Response text: '{response_text}'\n")
-            log_file.write(f"[AUTO-NORMALIZE] Step {step + 1}: Response length: {len(response_text)}\n")
-            log_file.flush()
-            
+            logger.debug("Step %d: Response text: '%s'", step + 1, response_text)
+
             if not response_text:
-                log_file.close()
                 raise ValueError("LLM returned empty response")
-            
-            # Parse action - extract JSON from response
-            log_file.write(f"[AUTO-NORMALIZE] Step {step + 1}: Parsing JSON...\n")
-            
+
             # Remove markdown code blocks if present
             if '```json' in response_text:
                 response_text = response_text.split('```json')[1].split('```')[0].strip()
             elif '```' in response_text:
                 response_text = response_text.split('```')[1].split('```')[0].strip()
-            
+
             # Extract JSON object from text (handle explanatory text before/after JSON)
-            import re
             json_match = re.search(r'\{[^}]+\}', response_text)
             if json_match:
                 response_text = json_match.group(0)
-            
-            log_file.write(f"[AUTO-NORMALIZE] Step {step + 1}: Cleaned response: '{response_text}'\n")
-            log_file.flush()
+
+            logger.debug("Step %d: Cleaned response: '%s'", step + 1, response_text)
             action_dict = json.loads(response_text)
-            log_file.close()
             action = Action(**action_dict)
-            
+
             # Execute action
-            print(f"[AUTO-NORMALIZE] Step {step + 1}: Executing action: {action.action_type}")
             env.step(action)
             steps_taken += 1
-            print(f"[AUTO-NORMALIZE] Step {step + 1}: Complete. Fields remaining: {env.state().fields_remaining}")
-            
+
         except Exception as e:
             error_msg = f"AI error at step {step}: {e}"
-            print(f"[AUTO-NORMALIZE] {error_msg}")
-            import traceback
-            traceback.print_exc()
             errors.append(error_msg)
             break
     

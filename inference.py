@@ -75,7 +75,7 @@ Your mission: Clean messy vendor names, component values, package codes, and par
 - "Maxim", "Maxim Int" → "Maxim Integrated"
 - "Microchip", "MCHP" → "Microchip Technology"
 - "TDK", "TDK Corp" → "TDK Corporation"
-- "Samsung", "Samsung Electro" → "Samsung"
+- "Samsung", "Samsung Electro", "SEC", "SAMSUNG" → "Samsung Electro-Mechanics"
 - "Panasonic", "Pana" → "Panasonic"
 - "Rohm", "ROHM" → "Rohm Semiconductor"
 - "Linear", "LT", "Linear Tech" → "Linear Technology"
