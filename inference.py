@@ -316,7 +316,8 @@ Choose your next action wisely."""
 
 def main():
     """Main entry point for inference script with structured logging"""
-    # Run all three tasks
+    wait_for_server(ENV_URL, timeout=60)
+    
     scores = {}
     for task_id in ['easy', 'medium', 'hard']:
         score = run_task(task_id)

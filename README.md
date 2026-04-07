@@ -199,19 +199,17 @@ python inference.py
 
 ## 📊 Baseline Performance
 
-| Task | Random Agent | Baseline LLM | Human Expert | Competition Target |
-|------|--------------|--------------|--------------|-------------------|
+| Task | No-Op Agent | Baseline LLM | Human Expert | Competition Target |
+|------|-------------|--------------|--------------|-------------------|
 | Easy | 0.3500 | 0.7500* | 1.0000 | 0.8000+ |
-| Medium | 0.6053 | 0.6500* | 0.9800 | 0.7000+ |
-| Hard | 0.7853 | 0.4200* | 0.8500 | 0.5000+ |
-| **Average** | **0.5802** | **0.6067*** | **0.9433** | **0.6667+** |
+| Medium | 0.6020 | 0.6500* | 0.9800 | 0.7000+ |
+| Hard | 0.4854 | 0.4200* | 0.8500 | 0.5000+ |
+| **Average** | **0.4791** | **0.6067*** | **0.9433** | **0.6667+** |
 
-*Random Agent: Verified scores from inference run (submit without normalization - partial credit from grading)*  
+*No-Op Agent: Verified scores — submits immediately without any normalization. Partial credit from Levenshtein similarity and unit-aware grading.*  
 *Baseline LLM: Estimated scores with Llama-3.3-70B-Instruct (requires Inference API access)*  
 *Human Expert: Manual normalization by supply chain engineer*  
 *Competition Target: Minimum score to be competitive*
-
-**Note:** Random agent scores have been verified through actual inference run. The grading system awards partial credit even without normalization due to sophisticated scoring (Levenshtein similarity, unit conversion, etc.).
 
 ---
 
@@ -261,7 +259,6 @@ Start a new episode.
 
 **Query Parameters:**
 - `task_id` (required): "easy", "medium", or "hard"
-- `seed` (optional): Random seed for reproducibility (default: 42)
 
 **Response:**
 ```json
@@ -320,21 +317,6 @@ Health check endpoint.
 
 ---
 
-## 🧪 Testing
-
-```bash
-# Run all tests
-pytest tests/ -v
-
-# Run specific test
-pytest tests/test_env.py::test_reset -v
-
-# Run with coverage
-pytest tests/ --cov=bom_normalizer --cov-report=html
-```
-
----
-
 ## 🐳 Docker Deployment
 
 ### Build Image
@@ -379,9 +361,6 @@ bom-normalizer/
 │   └── src/
 │       ├── App.tsx
 │       └── components/
-├── tests/                   # Test suite
-│   ├── test_env.py
-│   └── test_grader.py
 ├── inference.py            # Baseline agent (REQUIRED)
 ├── openenv.yaml            # Environment spec (REQUIRED)
 ├── Dockerfile              # Container config

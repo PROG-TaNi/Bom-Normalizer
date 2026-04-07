@@ -256,10 +256,9 @@ async def upload_bom(
         if len(df) == 0:
             raise HTTPException(status_code=400, detail='The uploaded file has no data rows.')
 
-        # Load into environment
         env = env_store[task_id]
         env.reset()
-        env.current_bom = []
+        uploaded_rows = []
         for idx, row in df.iterrows():
             try:
                 qty = int(float(str(row['quantity']).replace(',', '')))
@@ -275,8 +274,11 @@ async def upload_bom(
                 status='raw',
                 merged_into=None
             )
-            env.current_bom.append(bom_row)
+            uploaded_rows.append(bom_row)
 
+        import copy
+        env._rows = uploaded_rows
+        env._gold = copy.deepcopy(uploaded_rows)
         obs = env.state()
         return obs
 

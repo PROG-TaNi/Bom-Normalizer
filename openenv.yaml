@@ -59,16 +59,22 @@ observation_space:
 
 reward:
   type: dense
-  range: [-0.30, +0.30]
+  range: [-0.15, +0.30]
   description: |
     Dense reward signal at every step.
-    Correct field normalization: +0.10
-    Wrong normalization: -0.05
-    Invalid action: -0.05
-    Inspect hint used: -0.02
-    Batch normalize correct row: +0.15
-    Batch normalize wrong row: -0.10
+    Perfect field normalization: +0.30
+    Case-insensitive match: +0.25
+    Numerically equivalent value: +0.20
+    Correct duplicate merge: +0.20
+    Substring match: +0.15
+    High Levenshtein similarity: +0.10
+    Moderate similarity: +0.05
+    Already-correct field: +0.02
     Undo action: -0.01
+    Inspect hint used: -0.02
+    Invalid action/wrong normalization: -0.05
+    Corrupting a correct field: -0.15
+    Batch normalize: +0.15 per correct row, -0.10 per wrong
     Final episode score: deterministic [0.0, 1.0]
 
 endpoints:

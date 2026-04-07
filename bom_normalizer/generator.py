@@ -95,34 +95,41 @@ def _corrupt_vendor(vendor: str, rng: random.Random) -> str:
     return vendor
 
 
+def _fmt_num(v: float) -> str:
+    """Format number without trailing .0"""
+    return str(int(v)) if v == int(v) else str(v)
+
+
 def _corrupt_value(value: str, rng: random.Random) -> str:
     """Corrupt value with unit variants"""
     try:
         num_val = float(value.replace('e-', 'E-'))
         
-        # Resistance values
         if num_val >= 1000 and num_val < 1000000:
             k_val = num_val / 1000
-            variants = [f"{k_val}K", f"{k_val}k", f"{k_val}kΩ", f"{k_val}kohm"]
+            k_str = _fmt_num(k_val)
+            variants = [f"{k_str}K", f"{k_str}k", f"{k_str}kΩ", f"{k_str}kohm"]
             return rng.choice(variants)
         elif num_val >= 1000000:
             m_val = num_val / 1000000
-            variants = [f"{m_val}M", f"{m_val}MΩ", f"{m_val}Mohm"]
+            m_str = _fmt_num(m_val)
+            variants = [f"{m_str}M", f"{m_str}MΩ", f"{m_str}Mohm"]
             return rng.choice(variants)
         
-        # Capacitance values (scientific notation)
         if 'e-' in value.lower():
             exp = value.lower().split('e-')[1]
             coef = value.lower().split('e-')[0]
             if exp == '9':
-                variants = [f"{coef}nF", f"{float(coef)*1000}pF"]
+                pf_str = _fmt_num(float(coef) * 1000)
+                variants = [f"{coef}nF", f"{pf_str}pF"]
                 return rng.choice(variants)
             elif exp == '6':
-                variants = [f"{coef}uF", f"{coef}µF", f"{float(coef)*1000}nF"]
+                nf_str = _fmt_num(float(coef) * 1000)
+                variants = [f"{coef}uF", f"{coef}µF", f"{nf_str}nF"]
                 return rng.choice(variants)
         
         return value
-    except:
+    except Exception:
         return value
 
 
@@ -183,157 +190,121 @@ def _corrupt_row(row: BOMRow, rng: random.Random, difficulty: str) -> BOMRow:
     return corrupted
 
 
-def _inject_duplicates(rows: List[BOMRow], rng: random.Random, n: int = 40) -> List[BOMRow]:
-    """Inject n duplicate pairs for Hard task"""
-    result = list(rows)
+def _inject_duplicates(
+    messy: List[BOMRow], gold: List[BOMRow], rng: random.Random, n: int = 40
+) -> Tuple[List[BOMRow], List[BOMRow]]:
+    """Inject n duplicate pairs for Hard task with gold tracking"""
+    messy_result = list(messy)
+    gold_result = list(gold)
+    original_count = len(messy)
     
     for _ in range(n):
-        if len(result) < 2:
+        if original_count < 2:
             break
         
-        # Pick a random row to duplicate
-        idx = rng.randint(0, len(result) - 1)
-        original = result[idx]
+        idx = rng.randint(0, original_count - 1)
+        original_messy = messy[idx]
+        original_gold = gold[idx]
         
-        # Create duplicate with different corruption
-        duplicate = copy.deepcopy(original)
-        duplicate.row_id = len(result) + 1
+        duplicate = copy.deepcopy(original_messy)
+        duplicate.row_id = len(messy_result) + 1
         duplicate.quantity = rng.randint(1, 10)
+        duplicate.vendor_name = _corrupt_vendor(original_gold.vendor_name, rng)
+        duplicate.part_number = _corrupt_part(original_gold.part_number, rng)
+        messy_result.append(duplicate)
         
-        # Apply different corruptions
-        duplicate.vendor_name = _corrupt_vendor(original.vendor_name, rng)
-        duplicate.part_number = _corrupt_part(original.part_number, rng)
-        
-        result.append(duplicate)
+        dup_gold = copy.deepcopy(original_gold)
+        dup_gold.row_id = len(gold_result) + 1
+        dup_gold.merged_into = idx + 1
+        dup_gold.status = RowStatus.MERGED
+        gold_result.append(dup_gold)
     
-    # Reassign row IDs
-    for i, row in enumerate(result):
+    for i, row in enumerate(messy_result):
         row.row_id = i + 1
+    for i, g in enumerate(gold_result):
+        g.row_id = i + 1
     
-    return result
+    return messy_result, gold_result
 
 
-def _inject_edge_cases(rows: List[BOMRow], rng: random.Random) -> List[BOMRow]:
+def _inject_edge_cases(
+    messy: List[BOMRow], gold: List[BOMRow], rng: random.Random
+) -> Tuple[List[BOMRow], List[BOMRow]]:
     """
-    Inject 10 edge case rows to make Hard task genuinely hard
+    Inject 10 edge case rows with gold tracking for Hard task.
     
-    Edge cases include:
-    - Ambiguous vendor names (abbreviations that could match multiple vendors)
-    - Missing or empty fields
-    - Conflicting unit representations (1000pF vs 1nF)
-    - Near-duplicates with subtle differences
-    - Invalid/corrupted data
+    Edge cases include ambiguous vendors, missing fields, conflicting units,
+    near-duplicates, and corrupted data. Each maps to a canonical gold entry
+    with merged_into pointing to the original row it duplicates.
     """
+    sid = len(messy) + 1
+
     edge_cases = [
-        # 1. Ambiguous vendor - "TI" could be Texas Instruments or others
-        BOMRow(
-            row_id=len(rows) + 1,
-            vendor_name="TI",
-            part_number="SN74HC00",
-            value="5V",
-            package="DIP14",
-            quantity=10,
-            status=RowStatus.RAW
-        ),
-        # 2. Missing vendor name
-        BOMRow(
-            row_id=len(rows) + 2,
-            vendor_name="",
-            part_number="GRM188R71H104KA93D",
-            value="100nF",
-            package="0402",
-            quantity=100,
-            status=RowStatus.RAW
-        ),
-        # 3. Conflicting units - 1000pF = 1nF
-        BOMRow(
-            row_id=len(rows) + 3,
-            vendor_name="Murata",
-            part_number="GRM188R71H104KA93D",
-            value="1000pF",
-            package="0402",
-            quantity=50,
-            status=RowStatus.RAW
-        ),
-        # 4. Near-duplicate with typo in part number
-        BOMRow(
-            row_id=len(rows) + 4,
-            vendor_name="Texas Inst",
-            part_number="SN74HC00N",
-            value="5",
-            package="DIP-14",
-            quantity=5,
-            status=RowStatus.RAW
-        ),
-        # 5. Mixed case and spacing in package
-        BOMRow(
-            row_id=len(rows) + 5,
-            vendor_name="STMicro",
-            part_number="LM358N",
-            value="5",
-            package="dip 8",
-            quantity=8,
-            status=RowStatus.RAW
-        ),
-        # 6. Vendor with extra punctuation
-        BOMRow(
-            row_id=len(rows) + 6,
-            vendor_name="ON Semi.",
-            part_number="1N4148",
-            value="100V",
-            package="DO35",
-            quantity=150,
-            status=RowStatus.RAW
-        ),
-        # 7. Value with inconsistent notation
-        BOMRow(
-            row_id=len(rows) + 7,
-            vendor_name="Vishay",
-            part_number="CRCW040210K0FKED",
-            value="10K",
-            package="0402",
-            quantity=75,
-            status=RowStatus.RAW
-        ),
-        # 8. Duplicate with different quantity (should merge)
-        BOMRow(
-            row_id=len(rows) + 8,
-            vendor_name="Texas Instruments",
-            part_number="SN74HC00N",
-            value="5",
-            package="DIP-14",
-            quantity=20,
-            status=RowStatus.RAW
-        ),
-        # 9. Package with unusual formatting
-        BOMRow(
-            row_id=len(rows) + 9,
-            vendor_name="NXP",
-            part_number="BC547",
-            value="45",
-            package="TO92",
-            quantity=25,
-            status=RowStatus.RAW
-        ),
-        # 10. Vendor with common misspelling
-        BOMRow(
-            row_id=len(rows) + 10,
-            vendor_name="Infinion",  # Should be Infineon
-            part_number="2N2222",
-            value="40",
-            package="TO-18",
-            quantity=30,
-            status=RowStatus.RAW
-        ),
+        BOMRow(row_id=sid, vendor_name="TI", part_number="SN74HC00",
+               value="5V", package="DIP14", quantity=10, status=RowStatus.RAW),
+        BOMRow(row_id=sid+1, vendor_name="", part_number="GRM188R71H104KA93D",
+               value="100nF", package="0402", quantity=100, status=RowStatus.RAW),
+        BOMRow(row_id=sid+2, vendor_name="Murata", part_number="GRM188R71H104KA93D",
+               value="1000pF", package="0402", quantity=50, status=RowStatus.RAW),
+        BOMRow(row_id=sid+3, vendor_name="Texas Inst", part_number="SN74HC00N",
+               value="5", package="DIP-14", quantity=5, status=RowStatus.RAW),
+        BOMRow(row_id=sid+4, vendor_name="STMicro", part_number="LM358N",
+               value="5", package="dip 8", quantity=8, status=RowStatus.RAW),
+        BOMRow(row_id=sid+5, vendor_name="ON Semi.", part_number="1N4148",
+               value="100V", package="DO35", quantity=150, status=RowStatus.RAW),
+        BOMRow(row_id=sid+6, vendor_name="Vishay", part_number="CRCW040210K0FKED",
+               value="10K", package="0402", quantity=75, status=RowStatus.RAW),
+        BOMRow(row_id=sid+7, vendor_name="Texas Instruments", part_number="SN74HC00N",
+               value="5", package="DIP-14", quantity=20, status=RowStatus.RAW),
+        BOMRow(row_id=sid+8, vendor_name="NXP", part_number="BC547",
+               value="45", package="TO92", quantity=25, status=RowStatus.RAW),
+        BOMRow(row_id=sid+9, vendor_name="Infinion", part_number="2N2222",
+               value="40", package="TO-18", quantity=30, status=RowStatus.RAW),
     ]
-    
-    result = list(rows) + edge_cases
-    
-    # Reassign row IDs
-    for i, row in enumerate(result):
+
+    gid = len(gold) + 1
+    edge_gold = [
+        BOMRow(row_id=gid, vendor_name="Texas Instruments", part_number="SN74HC00N",
+               value="5", package="DIP-14", quantity=10,
+               status=RowStatus.MERGED, merged_into=1),
+        BOMRow(row_id=gid+1, vendor_name="Murata Manufacturing", part_number="GRM188R71H104KA93D",
+               value="100e-9", package="0402", quantity=100,
+               status=RowStatus.MERGED, merged_into=2),
+        BOMRow(row_id=gid+2, vendor_name="Murata Manufacturing", part_number="GRM188R71H104KA93D",
+               value="100e-9", package="0402", quantity=50,
+               status=RowStatus.MERGED, merged_into=2),
+        BOMRow(row_id=gid+3, vendor_name="Texas Instruments", part_number="SN74HC00N",
+               value="5", package="DIP-14", quantity=5,
+               status=RowStatus.MERGED, merged_into=1),
+        BOMRow(row_id=gid+4, vendor_name="STMicroelectronics", part_number="LM358N",
+               value="5", package="DIP-8", quantity=8,
+               status=RowStatus.MERGED, merged_into=4),
+        BOMRow(row_id=gid+5, vendor_name="ON Semiconductor", part_number="1N4148",
+               value="100", package="DO-35", quantity=150,
+               status=RowStatus.MERGED, merged_into=5),
+        BOMRow(row_id=gid+6, vendor_name="Vishay Intertechnology", part_number="CRCW040210K0FKED",
+               value="10000", package="0402", quantity=75,
+               status=RowStatus.MERGED, merged_into=3),
+        BOMRow(row_id=gid+7, vendor_name="Texas Instruments", part_number="SN74HC00N",
+               value="5", package="DIP-14", quantity=20,
+               status=RowStatus.MERGED, merged_into=1),
+        BOMRow(row_id=gid+8, vendor_name="NXP Semiconductors", part_number="BC547",
+               value="45", package="TO-92", quantity=25,
+               status=RowStatus.MERGED, merged_into=6),
+        BOMRow(row_id=gid+9, vendor_name="Infineon Technologies", part_number="2N2222",
+               value="40", package="TO-18", quantity=30,
+               status=RowStatus.MERGED, merged_into=7),
+    ]
+
+    messy_result = list(messy) + edge_cases
+    gold_result = list(gold) + edge_gold
+
+    for i, row in enumerate(messy_result):
         row.row_id = i + 1
-    
-    return result
+    for i, g in enumerate(gold_result):
+        g.row_id = i + 1
+
+    return messy_result, gold_result
 
 
 def _row_count(difficulty: str) -> int:
@@ -379,12 +350,8 @@ def generate_bom(seed: int, difficulty: str) -> Tuple[List[BOMRow], List[BOMRow]
     for row in messy:
         row.status = RowStatus.RAW
     
-    # Inject duplicates for Hard task
     if difficulty == 'hard':
-        messy = _inject_duplicates(messy, rng, n=40)
-        # Inject edge cases to make it genuinely hard
-        messy = _inject_edge_cases(messy, rng)
-        # Update gold to match (mark duplicates)
-        # For simplicity, we'll handle this in grader
+        messy, gold = _inject_duplicates(messy, gold, rng, n=40)
+        messy, gold = _inject_edge_cases(messy, gold, rng)
     
     return messy, gold

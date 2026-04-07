@@ -281,6 +281,10 @@ class BOMEnv:
         remaining = 0
         
         for row, gold_row in zip(self._rows, self._gold):
+            if gold_row.merged_into:
+                if row.status != RowStatus.MERGED:
+                    remaining += 1
+                continue
             if row.vendor_name != gold_row.vendor_name:
                 remaining += 1
             if row.value != gold_row.value:
