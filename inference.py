@@ -19,12 +19,14 @@ from typing import List, Optional
 import requests
 from openai import OpenAI
 
+# Defaults only for API_BASE_URL and MODEL_NAME (competition rule). No default for HF_TOKEN.
 API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
 MODEL_NAME = os.getenv("MODEL_NAME") or "meta-llama/Llama-3.3-70B-Instruct"
-HF_TOKEN = os.getenv("HF_TOKEN") or ""
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or HF_TOKEN
-LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME", "")
-IMAGE_NAME = os.getenv("IMAGE_NAME", "")
+HF_TOKEN = os.getenv("HF_TOKEN")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# Optional — if you use from_docker_image() (this script uses HTTP ENV_URL instead)
+LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
+IMAGE_NAME = os.getenv("IMAGE_NAME")
 ENV_URL = os.getenv("ENV_URL", "http://localhost:7860")
 
 BENCHMARK = "bom-normalizer"
@@ -32,7 +34,7 @@ SUCCESS_SCORE_THRESHOLD = 0.1
 
 client = OpenAI(
     base_url=API_BASE_URL,
-    api_key=HF_TOKEN or OPENAI_API_KEY,
+    api_key=HF_TOKEN or OPENAI_API_KEY or "",
 )
 
 
