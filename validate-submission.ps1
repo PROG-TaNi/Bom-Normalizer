@@ -60,10 +60,10 @@ Write-Log "Ping URL: $PingUrl"
 Write-Host ""
 
 # Step 1: Ping HF Space
-Write-Log "Step 1/3: Pinging HF Space ($PingUrl/reset) ..."
+Write-Log "Step 1/3: Pinging HF Space ($PingUrl/reset?task_id=easy) ..."
 
 try {
-    $response = Invoke-WebRequest -Uri "$PingUrl/reset" -Method POST `
+    $response = Invoke-WebRequest -Uri "$PingUrl/reset?task_id=easy" -Method POST `
         -ContentType "application/json" -Body '{}' `
         -TimeoutSec 30 -UseBasicParsing -ErrorAction Stop
     

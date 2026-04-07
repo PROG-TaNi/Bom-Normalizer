@@ -10,8 +10,11 @@
 #   - curl (usually pre-installed)
 #
 # Run:
-#   chmod +x validate-submission.sh
-#   ./validate-submission.sh <ping_url> [repo_dir]
+#   curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/scripts/validate-submission.sh | bash -s -- <ping_url> [repo_dir]
+#
+#   Or download and run locally:
+#     chmod +x validate-submission.sh
+#     ./validate-submission.sh <ping_url> [repo_dir]
 #
 # Arguments:
 #   ping_url   Your HuggingFace Space URL (e.g. https://your-space.hf.space)
@@ -104,21 +107,21 @@ log "Repo:     $REPO_DIR"
 log "Ping URL: $PING_URL"
 printf "\n"
 
-log "${BOLD}Step 1/3: Pinging HF Space${NC} ($PING_URL/reset) ..."
+log "${BOLD}Step 1/3: Pinging HF Space${NC} ($PING_URL/reset?task_id=easy) ..."
 
 CURL_OUTPUT=$(portable_mktemp "validate-curl")
 CLEANUP_FILES+=("$CURL_OUTPUT")
 
 HTTP_CODE=$(curl -s -o "$CURL_OUTPUT" -w "%{http_code}" -X POST \
   -H "Content-Type: application/json" -d '{}' \
-  "$PING_URL/reset" --max-time 30 2>"$CURL_OUTPUT" || printf "000")
+  "$PING_URL/reset?task_id=easy" --max-time 30 2>"$CURL_OUTPUT" || printf "000")
 
 if [ "$HTTP_CODE" = "200" ]; then
   pass "HF Space is live and responds to /reset"
 elif [ "$HTTP_CODE" = "000" ]; then
   fail "HF Space not reachable (connection failed or timed out)"
   hint "Check your network connection and that the Space is running."
-  hint "Try: curl -s -o /dev/null -w '%%{http_code}' -X POST $PING_URL/reset"
+  hint "Try: curl -s -o /dev/null -w '%%{http_code}' -X POST $PING_URL/reset?task_id=easy"
   stop_at "Step 1"
 else
   fail "HF Space /reset returned HTTP $HTTP_CODE (expected 200)"

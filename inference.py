@@ -1,30 +1,38 @@
 """
-Baseline Inference Script
-Production-grade LLM-based agent for BOM normalization
+Baseline Inference Script — BOM Normalizer (OpenEnv)
 
-CRITICAL: This file MUST be named exactly 'inference.py' and placed in project root
+MANDATORY (competition):
+- API_BASE_URL, MODEL_NAME — LLM endpoint and model id.
+- HF_TOKEN — API key (Hugging Face or compatible).
+- LOCAL_IMAGE_NAME — only if using from_docker_image(); this script uses HTTP ENV_URL instead.
+
+STDOUT: only [START], [STEP], [END] lines per competition spec.
+All other messages go to stderr.
 """
 
-import os
 import json
+import os
+import sys
 import time
+from typing import List, Optional
+
 import requests
 from openai import OpenAI
 
+API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
+MODEL_NAME = os.getenv("MODEL_NAME") or "meta-llama/Llama-3.3-70B-Instruct"
+HF_TOKEN = os.getenv("HF_TOKEN") or ""
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or HF_TOKEN
+LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME", "")
+IMAGE_NAME = os.getenv("IMAGE_NAME", "")
+ENV_URL = os.getenv("ENV_URL", "http://localhost:7860")
 
-# Environment variables (Competition requirements)
-API_BASE_URL = os.getenv('API_BASE_URL', 'https://router.huggingface.co/v1')
-MODEL_NAME = os.getenv('MODEL_NAME', 'meta-llama/Llama-3.3-70B-Instruct')
-HF_TOKEN = os.getenv('HF_TOKEN', '')  # REQUIRED by competition
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', HF_TOKEN)  # Backward compatibility
-ENV_URL = os.getenv('ENV_URL', 'http://localhost:7860')  # HuggingFace Spaces port
-MAX_STEPS = int(os.getenv('MAX_STEPS', '30'))
+BENCHMARK = "bom-normalizer"
+SUCCESS_SCORE_THRESHOLD = 0.1
 
-
-# Initialize OpenAI client (use HF_TOKEN as primary, OPENAI_API_KEY as fallback)
 client = OpenAI(
     base_url=API_BASE_URL,
-    api_key=HF_TOKEN or OPENAI_API_KEY
+    api_key=HF_TOKEN or OPENAI_API_KEY,
 )
 
 
@@ -131,205 +139,189 @@ Respond with ONLY a valid JSON object. No markdown, no explanation, just JSON:
 """
 
 
-def wait_for_server(url: str, timeout: int = 30, interval: int = 2):
-    """Wait for server to be ready"""
-    print(f"Waiting for server at {url}...")
-    start_time = time.time()
-    
-    while time.time() - start_time < timeout:
+def _err(msg: str) -> None:
+    print(msg, file=sys.stderr, flush=True)
+
+
+def log_start(task: str, env: str, model: str) -> None:
+    print(f"[START] task={task} env={env} model={model}", flush=True)
+
+
+def log_step(step: int, action: str, reward: float, done: bool, error: Optional[str]) -> None:
+    error_val = error if error else "null"
+    done_val = str(done).lower()
+    print(
+        f"[STEP] step={step} action={action} reward={reward:.2f} done={done_val} error={error_val}",
+        flush=True,
+    )
+
+
+def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
+    rewards_str = ",".join(f"{r:.2f}" for r in rewards)
+    print(f"[END] success={str(success).lower()} steps={steps} score={score:.3f} rewards={rewards_str}", flush=True)
+
+
+def wait_for_server(url: str, timeout: int = 60, interval: int = 2) -> None:
+    _err(f"Waiting for server at {url}...")
+    start = time.time()
+    while time.time() - start < timeout:
         try:
-            response = requests.get(f"{url}/health", timeout=2)
-            if response.status_code == 200:
-                print("Server is ready!")
-                return True
+            r = requests.get(f"{url}/health", timeout=2)
+            if r.status_code == 200:
+                _err("Server is ready!")
+                return
         except requests.exceptions.RequestException:
             pass
-        
         time.sleep(interval)
-    
-    print(f"Warning: Server not responding after {timeout}s, proceeding anyway...")
-    return False
+    _err(f"Warning: server not responding after {timeout}s, proceeding anyway...")
 
 
 def call_llm(user_content: str, retry_count: int = 3) -> str:
-    """
-    Call LLM API with retry logic
-    
-    Args:
-        user_content: User message
-        retry_count: Number of retries on failure
-    
-    Returns:
-        LLM response text
-    """
     for attempt in range(retry_count):
         try:
             response = client.chat.completions.create(
                 model=MODEL_NAME,
                 messages=[
-                    {'role': 'system', 'content': SYSTEM_PROMPT},
-                    {'role': 'user', 'content': user_content}
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": user_content},
                 ],
-                temperature=0.0,  # CRITICAL: Must be 0.0 for reproducibility
-                max_tokens=200
+                temperature=0.0,
+                max_tokens=200,
             )
-            return response.choices[0].message.content.strip()
+            text = (response.choices[0].message.content or "").strip()
+            return text
         except Exception as e:
-            print(f"LLM API error (attempt {attempt + 1}/{retry_count}): {e}")
+            _err(f"LLM API error (attempt {attempt + 1}/{retry_count}): {e}")
             if attempt < retry_count - 1:
                 time.sleep(1)
-            else:
-                # Fallback action
-                return '{"action_type": "submit"}'
-    
     return '{"action_type": "submit"}'
 
 
 def parse_action(response: str) -> dict:
-    """
-    Parse LLM response as action JSON with robust error handling
-    
-    Args:
-        response: Raw LLM response
-    
-    Returns:
-        Action dict or fallback submit action
-    """
     try:
-        # Remove markdown code blocks if present
-        if '```json' in response:
-            response = response.split('```json')[1].split('```')[0].strip()
-        elif '```' in response:
-            response = response.split('```')[1].split('```')[0].strip()
-        
-        # Remove any leading/trailing whitespace
+        if "```json" in response:
+            response = response.split("```json")[1].split("```")[0].strip()
+        elif "```" in response:
+            response = response.split("```")[1].split("```")[0].strip()
         response = response.strip()
-        
-        # Parse JSON
         action = json.loads(response)
-        
-        # Validate required fields
-        if 'action_type' not in action:
+        if "action_type" not in action:
             raise ValueError("Missing action_type field")
-        
         return action
-    
     except json.JSONDecodeError as e:
-        print(f"JSON parse error: {e}")
-        print(f"Raw response: {response[:200]}")
-        return {'action_type': 'submit'}
-    
+        _err(f"JSON parse error: {e}")
+        _err(f"Raw response: {response[:200]}")
+        return {"action_type": "submit"}
     except Exception as e:
-        print(f"Action parse error: {e}")
-        return {'action_type': 'submit'}
+        _err(f"Action parse error: {e}")
+        return {"action_type": "submit"}
 
 
 def run_task(task_id: str) -> float:
-    """
-    Run agent on one task with structured logging for competition evaluation
-    
-    Args:
-        task_id: Task identifier ('easy', 'medium', 'hard')
-    
-    Returns:
-        Final score (0.0 to 1.0)
-    """
-    # [START] log - REQUIRED by competition
-    print(f"[START] task={task_id} env=bom-normalizer model={MODEL_NAME}")
-    
-    # Track rewards for [END] log
-    rewards_list = []
-    
-    # Reset environment
+    rewards_list: List[float] = []
+    steps_taken = 0
+    final_score = 0.0
+    success = False
+
+    log_start(task_id, BENCHMARK, MODEL_NAME)
+
     try:
-        reset_url = f"{ENV_URL}/reset?task_id={task_id}"
-        response = requests.post(reset_url, timeout=10)
-        response.raise_for_status()
-        obs = response.json()
-    except Exception as e:
-        print(f"[ERROR] task={task_id} error=reset_failed message={str(e)}")
-        print(f"[END] success=false steps=0 score=0.000 rewards=")
-        return 0.0
-    
-    # Agent loop
-    for step in range(obs['max_steps']):
-        # Build context for LLM
-        raw_rows = [r for r in obs['rows'] if r['status'] == 'raw'][:15]
-        
-        if not raw_rows and obs['fields_remaining'] == 0:
-            user_content = "All rows normalized. Submit now."
-        else:
-            rows_str = json.dumps(raw_rows, indent=2)
-            user_content = f"""Task: {obs['task_description']}
-Step: {obs['step_count']} / {obs['max_steps']}
-Fields remaining: {obs['fields_remaining']}
-Hint budget: {obs.get('hint_budget', 0)}
-Last action result: {obs.get('last_action_result', 'N/A')}
-
-RAW rows (first 15):
-{rows_str}
-
-Choose your next action wisely."""
-        
-        # Get action from LLM
-        llm_response = call_llm(user_content)
-        action = parse_action(llm_response)
-        
-        # Execute action
         try:
-            step_url = f"{ENV_URL}/step?task_id={task_id}"
-            response = requests.post(step_url, json=action, timeout=10)
+            response = requests.post(
+                f"{ENV_URL}/reset?task_id={task_id}", timeout=30
+            )
             response.raise_for_status()
-            result = response.json()
+            obs = response.json()
         except Exception as e:
-            print(f"[ERROR] task={task_id} step={step+1} error=step_failed message={str(e)}")
-            rewards_str = ",".join(f"{r:.2f}" for r in rewards_list)
-            print(f"[END] success=false steps={step+1} score=0.000 rewards={rewards_str}")
-            return 0.0
-        
-        obs = result['observation']
-        reward = result['reward']
-        done = result['done']
-        
-        # Track reward
-        rewards_list.append(reward['value'])
-        
-        # [STEP] log - REQUIRED by competition
-        action_str = action.get('action_type', 'unknown')
-        error_val = "null"
-        print(f"[STEP] step={obs['step_count']} action={action_str} reward={reward['value']:.2f} done={str(done).lower()} error={error_val}")
-        
-        # Check if done
-        if done:
-            score = result['info'].get('score', 0.0)
-            # [END] log - REQUIRED by competition
-            rewards_str = ",".join(f"{r:.2f}" for r in rewards_list)
-            success = score > 0.0
-            print(f"[END] success={str(success).lower()} steps={obs['step_count']} score={score:.3f} rewards={rewards_str}")
-            return score
-    
-    # Max steps reached without submit
-    rewards_str = ",".join(f"{r:.2f}" for r in rewards_list)
-    print(f"[END] success=false steps={obs['max_steps']} score=0.000 rewards={rewards_str}")
-    return 0.0
+            _err(f"reset failed: {e}")
+            obs = None
+
+        if obs is not None:
+            max_steps = int(obs["max_steps"])
+            for _ in range(max_steps):
+                raw_rows = [r for r in obs["rows"] if r["status"] == "raw"][:15]
+
+                if not raw_rows and obs["fields_remaining"] == 0:
+                    user_content = "All rows normalized. Submit now."
+                else:
+                    rows_str = json.dumps(raw_rows, indent=2)
+                    user_content = (
+                        f"Task: {obs['task_description']}\n"
+                        f"Step: {obs['step_count']} / {obs['max_steps']}\n"
+                        f"Fields remaining: {obs['fields_remaining']}\n"
+                        f"Hint budget: {obs.get('hint_budget', 0)}\n"
+                        f"Last action result: {obs.get('last_action_result', 'N/A')}\n\n"
+                        f"RAW rows (first 15):\n{rows_str}\n\n"
+                        "Choose your next action wisely."
+                    )
+
+                llm_response = call_llm(user_content)
+                action = parse_action(llm_response)
+
+                try:
+                    response = requests.post(
+                        f"{ENV_URL}/step?task_id={task_id}",
+                        json=action,
+                        timeout=30,
+                    )
+                    response.raise_for_status()
+                    result = response.json()
+                except Exception as e:
+                    _err(f"step failed: {e}")
+                    break
+
+                obs = result["observation"]
+                reward = result["reward"]
+                done = result["done"]
+                rewards_list.append(float(reward["value"]))
+
+                action_str = action.get("action_type", "unknown")
+                step_num = int(obs["step_count"])
+                last_res = obs.get("last_action_result")
+                err_str: Optional[str] = None
+                if last_res and (
+                    last_res.startswith("Invalid")
+                    or "No hints remaining" in last_res
+                    or "No actions to undo" in last_res
+                ):
+                    err_str = last_res
+
+                log_step(
+                    step_num,
+                    action_str,
+                    float(reward["value"]),
+                    bool(done),
+                    err_str,
+                )
+                steps_taken = step_num
+
+                if done:
+                    final_score = float(result["info"].get("score", 0.0))
+                    final_score = min(max(final_score, 0.0), 1.0)
+                    success = final_score >= SUCCESS_SCORE_THRESHOLD
+                    break
+            else:
+                steps_taken = max_steps
+                final_score = 0.0
+                success = False
+
+    finally:
+        log_end(success, steps_taken, final_score, rewards_list)
+
+    return final_score
 
 
-def main():
-    """Main entry point for inference script with structured logging"""
+def main() -> None:
     wait_for_server(ENV_URL, timeout=60)
-    
     scores = {}
-    for task_id in ['easy', 'medium', 'hard']:
-        score = run_task(task_id)
-        scores[task_id] = score
-        time.sleep(1)  # Brief pause between tasks
-    
-    # Print summary (not parsed by evaluator, just for humans)
-    print(f"\n# Summary: easy={scores['easy']:.4f} medium={scores['medium']:.4f} hard={scores['hard']:.4f} average={sum(scores.values())/3:.4f}")
-    
-    # Return average score for automated evaluation
-    return sum(scores.values()) / len(scores)
+    for task_id in ("easy", "medium", "hard"):
+        scores[task_id] = run_task(task_id)
+        time.sleep(1)
+    _err(
+        f"# Summary: easy={scores['easy']:.4f} medium={scores['medium']:.4f} "
+        f"hard={scores['hard']:.4f} average={sum(scores.values()) / 3:.4f}"
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
