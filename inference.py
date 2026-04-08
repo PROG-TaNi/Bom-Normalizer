@@ -299,12 +299,12 @@ def run_task(task_id: str) -> float:
 
                 if done:
                     final_score = float(result["info"].get("score", 0.0))
-                    final_score = min(max(final_score, 0.0), 1.0)
+                    final_score = float(max(0.0001, min(0.9999, final_score)))
                     success = final_score >= SUCCESS_SCORE_THRESHOLD
                     break
             else:
                 steps_taken = max_steps
-                final_score = 0.0
+                final_score = 0.0001
                 success = False
 
     finally:
