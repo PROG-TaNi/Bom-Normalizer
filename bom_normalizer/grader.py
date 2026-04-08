@@ -206,7 +206,7 @@ def _grade_easy(rows: List[BOMRow], gold: List[BOMRow]) -> float:
                 total_score += 0.3
             # else: 0.0
     
-    return round(total_score / len(gold), 4)
+    return float(max(0.0001, min(0.9999, round(total_score / len(gold), 4))))
 
 
 def _grade_medium(rows: List[BOMRow], gold: List[BOMRow]) -> float:
@@ -263,7 +263,7 @@ def _grade_medium(rows: List[BOMRow], gold: List[BOMRow]) -> float:
             total_score += 0.5
         # else: 0.0
     
-    return round(total_score / total_fields, 4)
+    return float(max(0.0001, min(0.9999, round(total_score / total_fields, 4))))
 
 
 def _grade_hard(rows: List[BOMRow], gold: List[BOMRow]) -> float:
@@ -302,7 +302,7 @@ def _grade_hard(rows: List[BOMRow], gold: List[BOMRow]) -> float:
     # Weighted combination
     final_score = field_score * 0.5 + dup_score * 0.3 + qty_score * 0.2
     
-    return round(final_score, 4)
+    return float(max(0.0001, min(0.9999, round(final_score, 4))))
 
 
 def _grade_quantities(rows: List[BOMRow], gold: List[BOMRow]) -> float:
@@ -342,4 +342,4 @@ def grade(rows: List[BOMRow], gold: List[BOMRow], task_id: str) -> float:
     elif task_id == 'hard':
         return _grade_hard(rows, gold)
     else:
-        return 0.0
+        return 0.0001  # Clamped minimum
