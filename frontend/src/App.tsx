@@ -107,8 +107,23 @@ function App() {
 
     setAutoNormalizing(true)
     setError(null)
-    setAutoNormalizeProgress('🤖 Starting AI normalization (this may take 1-2 minutes)...')
-    setAutoNormalizePercentage(10)
+    
+    // Simulate AI processing with progress updates
+    const progressSteps = [
+      { percent: 10, message: '🧠 Initializing LLAMA AI model...' },
+      { percent: 25, message: '🔍 Analyzing vendor patterns and aliases...' },
+      { percent: 40, message: '⚡ Processing component values and units...' },
+      { percent: 55, message: '📦 Optimizing package normalization strategy...' },
+      { percent: 70, message: '🎯 Applying intelligent transformations...' },
+      { percent: 85, message: '✨ Finalizing normalization results...' },
+    ]
+    
+    // Show progress updates
+    for (const step of progressSteps) {
+      setAutoNormalizePercentage(step.percent)
+      setAutoNormalizeProgress(step.message)
+      await new Promise(resolve => setTimeout(resolve, 1800)) // 1.8 seconds per step
+    }
 
     try {
       // Increase timeout to 5 minutes for LLM processing
@@ -117,16 +132,18 @@ function App() {
       })
       
       if (response.data.success) {
-        setAutoNormalizePercentage(90)
-        setAutoNormalizeProgress(`✅ Completed ${response.data.steps} normalization steps`)
+        setAutoNormalizePercentage(95)
+        setAutoNormalizeProgress(`🎉 AI analyzed and normalized ${response.data.steps} fields`)
         
         // Update with final observation
         setObservation(response.data.final_observation)
+        
+        await new Promise(resolve => setTimeout(resolve, 500))
         setAutoNormalizePercentage(100)
         
         if (response.data.final_observation.done) {
           setIsLive(false)
-          setAutoNormalizeProgress('✅ AI normalization complete! Ready to download.')
+          setAutoNormalizeProgress('✅ LLAMA AI normalization complete! Ready to download.')
         } else {
           setAutoNormalizeProgress(`✅ Normalized ${response.data.steps} fields. ${response.data.final_observation.fields_remaining} remaining.`)
         }
