@@ -85,11 +85,11 @@ This project provides a **complete reinforcement-learning environment** where AI
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                    Frontend (React + Vite)                        │
-│                       localhost:3000                              │
-│  ┌──────────┐ ┌──────────────┐ ┌────────────┐ ┌──────────────┐  │
-│  │ BOMTable │ │ ActionBuilder│ │EpisodeStats│ │  RewardLog   │  │
-│  └──────────┘ └──────────────┘ └────────────┘ └──────────────┘  │
+│                    Frontend (React + Vite)                       │
+│                       localhost:3000                             │
+│  ┌──────────┐ ┌──────────────┐ ┌────────────┐ ┌──────────────┐   │
+│  │ BOMTable │ │ ActionBuilder│ │EpisodeStats│ │  RewardLog   │   │
+│  └──────────┘ └──────────────┘ └────────────┘ └──────────────┘   │
 └───────────────────────────┬──────────────────────────────────────┘
                             │  /api/* → proxy
                             ▼
