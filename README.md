@@ -1,91 +1,92 @@
-<![CDATA[# 🏭 BOM Normalizer — OpenEnv Agent Training Environment
+<p align="center">
+  <img src="https://img.shields.io/badge/🏭_BOM_Normalizer-OpenEnv_Agent_Training_Environment-blueviolet?style=for-the-badge" alt="BOM Normalizer" />
+</p>
 
-> **Enterprise-grade Bill of Materials (BOM) normalization environment for training AI agents on real-world supply-chain data-cleaning tasks.**
+<h3 align="center">Enterprise-grade Bill of Materials (BOM) normalization environment<br/>for training AI agents on real-world supply-chain data-cleaning tasks.</h3>
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688.svg)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/React-18-61DAFB.svg)](https://react.dev)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+<p align="center">
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+" /></a>
+  <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" /></a>
+  <a href="https://react.dev"><img src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React" /></a>
+  <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind_CSS-3.3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" /></a>
+  <a href="#license"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License: MIT" /></a>
+</p>
 
-Built by **Team Quasars** for the [OpenEnv Hackathon 2025](https://github.com/PROG-TaNi/Bom-Normalizer).
+<p align="center">
+  Built by <strong>Team Quasars</strong> for the <a href="https://github.com/PROG-TaNi/Bom-Normalizer">OpenEnv Hackathon 2025</a>
+</p>
 
 ---
 
-## Table of Contents
+## 📑 Table of Contents
 
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Architecture](#architecture)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
+<details>
+<summary>Click to expand</summary>
+
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [Architecture](#-architecture)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Environment Variables](#environment-variables)
   - [Running the Application](#running-the-application)
-  - [Docker Deployment](#docker-deployment)
-- [How the Environment Works](#how-the-environment-works)
+  - [Docker Deployment](#-docker-deployment)
+- [How the Environment Works](#-how-the-environment-works)
   - [The Problem: Messy BOMs](#the-problem-messy-boms)
   - [Task Difficulty Levels](#task-difficulty-levels)
   - [Action Space](#action-space)
   - [Observation Space](#observation-space)
   - [Reward System](#reward-system)
   - [Grading & Scoring](#grading--scoring)
-- [Backend — Deep Dive](#backend--deep-dive)
-  - [Core Package (`bom_normalizer/`)](#core-package-bom_normalizer)
-  - [Data Models (`models.py`)](#data-models-modelspy)
-  - [BOM Generator (`generator.py`)](#bom-generator-generatorpy)
-  - [Environment Engine (`env.py`)](#environment-engine-envpy)
-  - [Reward Function (`reward.py`)](#reward-function-rewardpy)
-  - [Grader (`grader.py`)](#grader-graderpy)
-  - [FastAPI Server (`server.py`)](#fastapi-server-serverpy)
-  - [Task Configs (`tasks.py`)](#task-configs-taskspy)
-- [Frontend — Deep Dive](#frontend--deep-dive)
-- [Inference Script](#inference-script)
-- [Demo Script](#demo-script)
-- [Data Files](#data-files)
-- [API Reference](#api-reference)
-- [Configuration Files](#configuration-files)
-- [Development](#development)
-- [License](#license)
+- [Backend — Deep Dive](#-backend--deep-dive)
+- [Frontend — Deep Dive](#-frontend--deep-dive)
+- [Inference Script](#-inference-script)
+- [Demo Script](#-demo-script)
+- [Data Files](#-data-files)
+- [API Reference](#-api-reference)
+- [Configuration Files](#-configuration-files)
+- [Development](#-development)
+- [License](#-license)
+
+</details>
 
 ---
 
-## Overview
+## 🔍 Overview
 
 In electronics manufacturing, a **Bill of Materials (BOM)** is a structured list of every component needed to build a product — vendors, part numbers, values, packages, and quantities. In the real world, BOMs arrive from multiple suppliers in wildly inconsistent formats:
 
-| Problem | Example |
-|---------|---------|
-| Vendor abbreviations | `TI`, `T.I.`, `Texas Inst.` → should be `Texas Instruments` |
-| Inconsistent units | `10K`, `10k`, `10kΩ`, `10kohm` → should be `10000` |
-| Package variation | `SOT23`, `SOT-23`, `SOT23-3` → should be `SOT-23` |
+| 🚩 Problem | Example |
+|:---|:---|
+| Vendor abbreviations | `TI`, `T.I.`, `Texas Inst.` → **`Texas Instruments`** |
+| Inconsistent units | `10K`, `10k`, `10kΩ`, `10kohm` → **`10000`** |
+| Package variation | `SOT23`, `SOT-23`, `SOT23-3` → **`SOT-23`** |
 | Duplicate rows | Same component listed twice with different names |
 
-This project provides a **complete reinforcement-learning environment** where AI agents learn to clean messy BOMs. It follows the [OpenEnv](https://openenv.dev) standard (`reset` → `step` → `state` loop) and exposes a FastAPI HTTP API that any LLM or RL agent can interact with.
+This project provides a **complete reinforcement-learning environment** where AI agents learn to clean messy BOMs. It follows the [OpenEnv](https://openenv.dev) standard (`reset` → `step` → `state` loop) and exposes a **FastAPI HTTP API** that any LLM or RL agent can interact with.
 
 ---
 
-## Key Features
+## ✨ Key Features
 
-- **Three difficulty levels** — Easy (vendor-only), Medium (multi-field), Hard (full normalization + deduplication)
-- **Dense reward signal** — Immediate feedback at every step (range `[-0.15, +0.30]`)
-- **Deterministic data generation** — Seed-controlled BOM generation for reproducible training
-- **10 distinct actions** — `normalize_vendor`, `normalize_value`, `normalize_package`, `normalize_part`, `merge_rows`, `flag_anomaly`, `inspect_row`, `batch_normalize`, `undo_last`, `submit`
-- **Partial credit grading** — Levenshtein similarity, unit-aware value equivalence, normalized package comparison
-- **LLM auto-normalize** — Built-in AI-powered normalization using any OpenAI-compatible endpoint
-- **Excel/CSV upload** — Upload real BOM files through the web UI or API
-- **Interactive web dashboard** — React + TypeScript frontend with live BOM table, action builder, reward log, and episode statistics
-- **Docker-ready** — Single `Dockerfile` for Hugging Face Spaces or any container runtime
-- **Competition-ready inference script** — Follows OpenEnv `[START]`/`[STEP]`/`[END]` stdout format
+| Category | Features |
+|:---|:---|
+| 🎮 **Environment** | Three difficulty levels (Easy / Medium / Hard) · Dense reward signal `[-0.15, +0.30]` · Deterministic seed-controlled data generation |
+| 🤖 **Agent Interface** | 10 discrete actions · Partial-credit grading · Levenshtein similarity · Unit-aware value equivalence |
+| 🧠 **AI Integration** | LLM auto-normalize via any OpenAI-compatible endpoint · Competition-ready inference script |
+| 🖥️ **Web Dashboard** | React + TypeScript frontend · Live BOM table · Action builder · Reward log · Episode stats |
+| 📦 **Deployment** | Docker-ready · Excel/CSV upload · Windows one-click startup |
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                        Frontend (React + Vite)                   │
-│                         localhost:3000                            │
+│                    Frontend (React + Vite)                        │
+│                       localhost:3000                              │
 │  ┌──────────┐ ┌──────────────┐ ┌────────────┐ ┌──────────────┐  │
 │  │ BOMTable │ │ ActionBuilder│ │EpisodeStats│ │  RewardLog   │  │
 │  └──────────┘ └──────────────┘ └────────────┘ └──────────────┘  │
@@ -93,25 +94,25 @@ This project provides a **complete reinforcement-learning environment** where AI
                             │  /api/* → proxy
                             ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│                    FastAPI Server (Python)                        │
-│                      localhost:7860                               │
+│                   FastAPI Server (Python)                         │
+│                     localhost:7860                                │
 │                                                                  │
-│   /health  /tasks  /reset  /step  /state                        │
-│   /upload-bom  /download-template  /auto-normalize              │
+│  /health  /tasks  /reset  /step  /state                          │
+│  /upload-bom  /download-template  /auto-normalize                │
 │                                                                  │
 │  ┌────────────────────────────────────────────────────────────┐  │
-│  │                    BOMEnv (Core Engine)                     │  │
+│  │                  BOMEnv (Core Engine)                       │  │
 │  │  ┌───────────┐ ┌───────────┐ ┌────────┐ ┌─────────────┐  │  │
 │  │  │ Generator │ │  Reward   │ │ Grader │ │   Models    │  │  │
 │  │  └───────────┘ └───────────┘ └────────┘ └─────────────┘  │  │
 │  └────────────────────────────────────────────────────────────┘  │
-│                            │                                     │
-│                   ┌────────┴────────┐                            │
-│                   │   Data Files    │                            │
-│                   │ vendor_aliases  │                            │
-│                   │ unit_variants   │                            │
-│                   │ part_numbers    │                            │
-│                   └─────────────────┘                            │
+│                           │                                      │
+│                  ┌────────┴────────┐                             │
+│                  │   Data Files    │                             │
+│                  │ vendor_aliases  │                             │
+│                  │ unit_variants   │                             │
+│                  │ part_numbers    │                             │
+│                  └─────────────────┘                             │
 └──────────────────────────────────────────────────────────────────┘
                             │
               (auto-normalize only)
@@ -125,7 +126,10 @@ This project provides a **complete reinforcement-learning environment** where AI
 
 ---
 
-## Project Structure
+## 📂 Project Structure
+
+<details>
+<summary>Click to expand full project tree</summary>
 
 ```
 bom-normalizer/
@@ -162,8 +166,8 @@ bom-normalizer/
 │
 ├── data/                          # JSON reference data
 │   ├── vendor_aliases.json        # 24 vendor → alias mappings (140+ aliases)
-│   ├── unit_variants.json         # Unit variants for R, C, L, V, A, Hz, W, length, weight
-│   └── part_numbers.json          # Canonical part numbers + package variant mappings
+│   ├── unit_variants.json         # Unit variants for R, C, L, V, A, Hz, W, etc.
+│   └── part_numbers.json          # Canonical part numbers + package variants
 │
 ├── inference.py                   # Competition baseline inference (LLM agent loop)
 ├── demo_normalization.py          # Interactive CLI demo with colorized output
@@ -182,40 +186,42 @@ bom-normalizer/
 └── SUPER_SIMPLE_GUIDE.md          # Quick-start guide
 ```
 
+</details>
+
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
 | Tool | Version | Purpose |
-|------|---------|---------|
+|:---|:---|:---|
 | **Python** | 3.10 – 3.12 | Backend runtime |
 | **Node.js** | 18+ | Frontend build tooling |
 | **npm** | 9+ | Package manager |
 | **Git** | Any | Version control |
-| **(Optional)** Ollama | Any | Local LLM for auto-normalize |
-| **(Optional)** Docker | 20+ | Container deployment |
+| Ollama *(optional)* | Any | Local LLM for auto-normalize |
+| Docker *(optional)* | 20+ | Container deployment |
 
 ### Installation
 
-**1. Clone the repository:**
+**1. Clone the repository**
 
 ```bash
 git clone https://github.com/PROG-TaNi/Bom-Normalizer.git
 cd Bom-Normalizer
 ```
 
-**2. Set up Python environment:**
+**2. Set up the Python environment**
 
 ```bash
-# Create and activate virtual environment
+# Create and activate a virtual environment
 python -m venv venv
 
 # Windows
 venv\Scripts\activate
 
-# Linux/macOS
+# Linux / macOS
 source venv/bin/activate
 
 # Install dependencies
@@ -225,7 +231,7 @@ pip install -r requirements.txt
 pip install -e ".[dev]"
 ```
 
-**3. Set up Frontend:**
+**3. Set up the Frontend**
 
 ```bash
 cd frontend
@@ -242,8 +248,8 @@ cp .env.example .env
 ```
 
 | Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `HF_TOKEN` | For inference.py | — | Hugging Face API token |
+|:---|:---:|:---|:---|
+| `HF_TOKEN` | For `inference.py` | — | Hugging Face API token |
 | `API_BASE_URL` | No | `https://router.huggingface.co/v1` | LLM API endpoint URL |
 | `MODEL_NAME` | No | `meta-llama/Llama-3.3-70B-Instruct` | LLM model identifier |
 | `OPENAI_API_KEY` | No | — | OpenAI-compatible API key |
@@ -252,7 +258,8 @@ cp .env.example .env
 
 ### Running the Application
 
-**Option A — Two terminals (recommended for development):**
+<details>
+<summary><strong>Option A — Two terminals (recommended for development)</strong></summary>
 
 ```bash
 # Terminal 1: Start the backend
@@ -265,7 +272,10 @@ npm run dev
 
 Then open **http://localhost:3000** in your browser.
 
-**Option B — Windows one-click:**
+</details>
+
+<details>
+<summary><strong>Option B — Windows one-click</strong></summary>
 
 ```bash
 START_ALL_SERVICES.bat
@@ -273,7 +283,9 @@ START_ALL_SERVICES.bat
 
 This starts Ollama, the backend (port 7860), and the frontend (port 3001).
 
-### Docker Deployment
+</details>
+
+### 🐳 Docker Deployment
 
 ```bash
 # Build the image
@@ -283,11 +295,11 @@ docker build -t bom-normalizer .
 docker run -p 7860:7860 --env-file .env bom-normalizer
 ```
 
-The Docker image exposes port **7860** with a built-in health check at `/health`.
+> The Docker image exposes port **7860** with a built-in health check at `/health`.
 
 ---
 
-## How the Environment Works
+## 🎮 How the Environment Works
 
 ### The Problem: Messy BOMs
 
@@ -295,7 +307,7 @@ The environment generates a **messy BOM** from a 50-entry canonical electronics 
 
 - **Vendor name** — e.g., `Texas Instruments`, `Murata Manufacturing`
 - **Part number** — e.g., `SN74HC00N`, `GRM188R71H104KA93D`
-- **Value** — resistance in ohms, capacitance in farads (scientific notation), voltage
+- **Value** — resistance in ohms, capacitance in farads, voltage
 - **Package** — e.g., `DIP-14`, `0402`, `SOT-23`
 - **Quantity** — integer count
 
@@ -304,47 +316,56 @@ The generator applies **difficulty-appropriate corruptions** to produce the mess
 ### Task Difficulty Levels
 
 | Level | Rows | Fields to Normalize | Max Steps | Baseline Score | Special |
-|-------|------|---------------------|-----------|----------------|---------|
-| **Easy** | 10 | `vendor_name` only | 30 | 0.85 | — |
-| **Medium** | 50 | `vendor_name`, `value`, `package` | 100 | 0.55 | — |
-| **Hard** | ~100 | All 4 fields | 250 | 0.25 | 40 duplicate pairs + 10 edge cases |
+|:---:|:---:|:---|:---:|:---:|:---|
+| 🟢 **Easy** | 10 | `vendor_name` only | 30 | 0.85 | — |
+| 🟡 **Medium** | 50 | `vendor_name`, `value`, `package` | 100 | 0.55 | — |
+| 🔴 **Hard** | ~100 | All 4 fields | 250 | 0.25 | 40 duplicate pairs + 10 edge cases |
 
-#### Easy Task
+<details>
+<summary><strong>Easy Task Details</strong></summary>
 
 Only vendor names are corrupted. The agent must map abbreviations and aliases to canonical names:
 - `TI` → `Texas Instruments`
 - `Murata` → `Murata Manufacturing`
 - `ST` → `STMicroelectronics`
 
-#### Medium Task
+</details>
+
+<details>
+<summary><strong>Medium Task Details</strong></summary>
 
 Three fields are corrupted:
 - **Vendors**: Same as Easy
 - **Values**: `10K` → `10000`, `100nF` → `100e-9`, `5V` → `5`
 - **Packages**: `DIP14` → `DIP-14`, `SOT23` → `SOT-23`
 
-#### Hard Task
+</details>
+
+<details>
+<summary><strong>Hard Task Details</strong></summary>
 
 All four fields are corrupted, plus:
-- **40 duplicate row pairs** are injected — rows that refer to the same component but with different corruptions
-- **10 edge cases** are added — empty vendor names, conflicting units, near-duplicate entries, typos like `Infinion` for `Infineon Technologies`
+- **40 duplicate row pairs** — rows that refer to the same component but with different corruptions
+- **10 edge cases** — empty vendor names, conflicting units, near-duplicate entries, typos like `Infinion` for `Infineon Technologies`
 - The agent must identify and **merge duplicates** using the `merge_rows` action
+
+</details>
 
 ### Action Space
 
 The environment provides **10 discrete actions**:
 
 | Action | Parameters | Description |
-|--------|-----------|-------------|
+|:---|:---|:---|
 | `normalize_vendor` | `row_id`, `new_value` | Set canonical vendor name for one row |
 | `normalize_value` | `row_id`, `new_value` | Set canonical component value for one row |
 | `normalize_package` | `row_id`, `new_value` | Set canonical package code for one row |
 | `normalize_part` | `row_id`, `new_value` | Set canonical part number for one row |
-| `merge_rows` | `row_id`, `duplicate_row_id` | Mark a row as duplicate of another (Hard only) |
+| `merge_rows` | `row_id`, `duplicate_row_id` | Mark a row as duplicate of another *(Hard only)* |
 | `flag_anomaly` | `row_id` | Flag a row as suspicious or invalid data |
-| `inspect_row` | `row_id` | Reveal the gold-standard answer (costs a hint; 3 per episode) |
-| `batch_normalize` | `field`, `from_value`, `new_value` | Normalize all rows matching `from_value` in one action |
-| `undo_last` | — | Revert the previous action (small reward penalty) |
+| `inspect_row` | `row_id` | Reveal the gold-standard answer *(costs a hint; 3 per episode)* |
+| `batch_normalize` | `field`, `from_value`, `new_value` | Normalize all matching rows in one action |
+| `undo_last` | — | Revert the previous action *(small reward penalty)* |
 | `submit` | — | End the episode and trigger final grading |
 
 ### Observation Space
@@ -378,69 +399,85 @@ After every action, the agent receives a structured observation:
 }
 ```
 
-Row statuses: `raw` (untouched), `normalized` (agent acted), `flagged` (anomaly), `merged` (duplicate).
+> **Row Statuses:** `raw` (untouched) · `normalized` (agent acted) · `flagged` (anomaly) · `merged` (duplicate)
 
 ### Reward System
 
 The environment provides **dense rewards** at every step to guide learning:
 
 | Outcome | Reward | Description |
-|---------|--------|-------------|
-| Perfect field match | **+0.30** | New value exactly matches gold standard |
-| Case-insensitive match | **+0.25** | Correct but wrong casing |
-| Numerically equivalent | **+0.20** | Different notation but same numeric value |
-| Correct duplicate merge | **+0.20** | Correctly identified a duplicate pair |
-| Substring match | **+0.15** | Partial match (one contains the other) |
-| High Levenshtein similarity (>0.7) | **+0.10** | Close but not exact |
-| Moderate similarity (>0.5) | **+0.05** | Somewhat similar |
-| Already correct (no-op) | **+0.02** | Field was already right |
-| Undo action | **−0.01** | Small cost to discourage excessive undos |
-| Inspect hint used | **−0.02** | Small cost for using a hint |
-| Invalid action / wrong normalization | **−0.05** | Incorrect or missing parameters |
-| Corrupting a correct field | **−0.15** | Changing a correct value to a wrong one |
-| Batch normalize | **+0.15/−0.10** per row | +0.15 per correct row, −0.10 per wrong row |
+|:---|:---:|:---|
+| ✅ Perfect field match | **+0.30** | New value exactly matches gold standard |
+| ✅ Case-insensitive match | **+0.25** | Correct but wrong casing |
+| ✅ Numerically equivalent | **+0.20** | Different notation, same numeric value |
+| ✅ Correct duplicate merge | **+0.20** | Correctly identified a duplicate pair |
+| 🔶 Substring match | **+0.15** | Partial match (one contains the other) |
+| 🔶 High Levenshtein similarity (>0.7) | **+0.10** | Close but not exact |
+| 🔶 Moderate similarity (>0.5) | **+0.05** | Somewhat similar |
+| ⚪ Already correct (no-op) | **+0.02** | Field was already right |
+| 🔻 Undo action | **−0.01** | Small cost to discourage excessive undos |
+| 🔻 Inspect hint used | **−0.02** | Small cost for using a hint |
+| ❌ Invalid action / wrong normalization | **−0.05** | Incorrect or missing parameters |
+| ❌ Corrupting a correct field | **−0.15** | Changing a correct value to a wrong one |
+| ⚡ Batch normalize | **±0.15/0.10** | +0.15 per correct row, −0.10 per wrong row |
 
 ### Grading & Scoring
 
 When the agent calls `submit` or runs out of steps, a **final deterministic score** is computed:
 
-**Easy Task** — Vendor accuracy with partial credit:
-- 1.0 per exact match
-- 0.8 per case-insensitive match
-- 0.5 per substring match
-- 0.3 per high similarity (Levenshtein > 0.7)
+<details>
+<summary><strong>🟢 Easy Task Scoring</strong></summary>
+
+Vendor accuracy with partial credit:
+- **1.0** — exact match
+- **0.8** — case-insensitive match
+- **0.5** — substring match
+- **0.3** — high similarity (Levenshtein > 0.7)
 - Divided by total rows → score in `[0.0, 1.0]`
 
-**Medium Task** — Three-field accuracy:
-- Vendor: Same partial-credit scheme as Easy
-- Value: 1.0 if numerically equivalent (handles unit conversion), else 0.0
-- Package: 1.0 if normalized form matches, 0.5 for substring
+</details>
+
+<details>
+<summary><strong>🟡 Medium Task Scoring</strong></summary>
+
+Three-field accuracy:
+- **Vendor**: Same partial-credit scheme as Easy
+- **Value**: 1.0 if numerically equivalent (handles unit conversion), else 0.0
+- **Package**: 1.0 if normalized form matches, 0.5 for substring
 - Divided by (rows × 3) → score in `[0.0, 1.0]`
 
-**Hard Task** — Weighted composite:
-- **50%** Field normalization (same as Medium, for non-duplicate rows)
-- **30%** Duplicate detection (fraction of gold-standard pairs correctly merged)
-- **20%** Quantity aggregation (fraction of quantities matching gold)
+</details>
+
+<details>
+<summary><strong>🔴 Hard Task Scoring</strong></summary>
+
+Weighted composite:
+- **50%** — Field normalization (same as Medium, for non-duplicate rows)
+- **30%** — Duplicate detection (fraction of gold-standard pairs correctly merged)
+- **20%** — Quantity aggregation (fraction of quantities matching gold)
+
+</details>
 
 ---
 
-## Backend — Deep Dive
+## 🔧 Backend — Deep Dive
 
 ### Core Package (`bom_normalizer/`)
 
-The `bom_normalizer` package is the heart of the project. It's a self-contained Python package that implements the OpenEnv interface and exposes it over HTTP.
+The `bom_normalizer` package is the heart of the project — a self-contained Python package that implements the OpenEnv interface and exposes it over HTTP.
 
 ```python
 __version__ = "1.0.0"
 __author__ = "Team Quasars"
 ```
 
-### Data Models (`models.py`)
+<details>
+<summary><strong>📦 Data Models — <code>models.py</code></strong></summary>
 
-All data structures use **Pydantic v2** with `model_config = ConfigDict(extra='forbid')` for strict validation — no extra fields are allowed.
+All data structures use **Pydantic v2** with `model_config = ConfigDict(extra='forbid')` for strict validation.
 
 | Model | Purpose |
-|-------|---------|
+|:---|:---|
 | `RowStatus` | Enum: `raw`, `normalized`, `flagged`, `merged` |
 | `BOMRow` | Single BOM row with all fields + status tracking |
 | `ActionType` | Enum of all 10 available actions |
@@ -449,11 +486,14 @@ All data structures use **Pydantic v2** with `model_config = ConfigDict(extra='f
 | `Reward` | Immediate reward + reason + cumulative total |
 | `StepResponse` | Combined response from `step()`: observation + reward + done + info |
 
-### BOM Generator (`generator.py`)
+</details>
+
+<details>
+<summary><strong>⚙️ BOM Generator — <code>generator.py</code></strong></summary>
 
 The generator creates reproducible messy/gold BOM pairs from a seed integer.
 
-**Canonical BOM**: A hard-coded array of 50 real electronics components from 24 manufacturer families (Texas Instruments, Murata, Vishay, STMicroelectronics, etc.) covering:
+**Canonical BOM**: A hard-coded array of 50 real electronics components from 24 manufacturer families covering:
 - Logic ICs (SN74HC00N)
 - Passive components (10kΩ resistors, 100nF capacitors)
 - Microcontrollers (ATmega328P, STM32F103)
@@ -462,91 +502,91 @@ The generator creates reproducible messy/gold BOM pairs from a seed integer.
 - Wireless modules (BCM43438, QCA9377)
 
 **Corruption Pipeline**:
+1. `_corrupt_vendor()` — Replaces canonical vendor names with random aliases
+2. `_corrupt_value()` — Converts numeric values to human-readable variants
+3. `_corrupt_package()` — Applies package variant mappings
+4. `_corrupt_part()` — Applies part number variants
+5. `_inject_duplicates()` — For Hard mode: creates 40 duplicate pairs
+6. `_inject_edge_cases()` — For Hard mode: adds 10 tricky edge-case rows
 
-1. **`_corrupt_vendor()`** — Replaces canonical vendor names with random aliases from `vendor_aliases.json`
-2. **`_corrupt_value()`** — Converts numeric values to human-readable variants (e.g., `10000` → `10K`, `100e-9` → `100nF` or `100000pF`)
-3. **`_corrupt_package()`** — Applies package variant mappings (e.g., `DIP-14` → `DIP14`) or strips/adds hyphens
-4. **`_corrupt_part()`** — Applies part number variants or strips prefixes/suffixes
-5. **`_inject_duplicates()`** — For Hard mode: creates 40 duplicate pairs with re-corrupted vendor/part
-6. **`_inject_edge_cases()`** — For Hard mode: adds 10 tricky edge-case rows (empty vendors, unit-suffixed values like `5V`, typos like `Infinion`)
+</details>
 
-### Environment Engine (`env.py`)
+<details>
+<summary><strong>🔄 Environment Engine — <code>env.py</code></strong></summary>
 
 The `BOMEnv` class implements the standard RL environment interface:
 
 ```python
 class BOMEnv:
-    def reset(self) -> Observation         # Generate new episode
-    def step(self, action) -> (obs, reward, done, info)  # Execute action
-    def state(self) -> Observation         # Read-only state query
+    def reset(self) -> Observation
+    def step(self, action) -> (obs, reward, done, info)
+    def state(self) -> Observation
 ```
 
 **Key internal mechanics**:
-- Maintains a `_rows` list (current state) and `_gold` list (ground truth)
+- Maintains `_rows` (current state) and `_gold` (ground truth)
 - Tracks `action_history` for undo functionality (deep-copied snapshots)
 - Counts `fields_remaining` by comparing each row's fields against gold
 - Episode ends on `submit` action or when `step_count >= max_steps`
 - `info['score']` is populated on episode completion via the grader
 
-**Action handling** (`_apply_action`):
-- `INSPECT_ROW`: Reveals gold-standard hints for the requested row, decrements `hint_budget`
-- `UNDO_LAST`: Pops the last state snapshot from history
-- `BATCH_NORMALIZE`: Iterates all rows, replacing matching `from_value` with `new_value`
-- `NORMALIZE_*`: Updates the specified field on the target row
-- `MERGE_ROWS`: Sets `merged_into` pointer and status
-- `FLAG_ANOMALY`: Sets row status to flagged
+</details>
 
-### Reward Function (`reward.py`)
+<details>
+<summary><strong>🎯 Reward Function — <code>reward.py</code></strong></summary>
 
-`compute_reward(action, rows, gold)` returns a `(float, str)` tuple. It implements a graduated reward scale using:
+`compute_reward(action, rows, gold)` returns a `(float, str)` tuple using:
 
-1. **String similarity** — Custom Levenshtein distance implementation (no external dependency)
-2. **Numeric closeness** — `_numeric_close()` checks if two numeric strings are within 1% tolerance
-3. **Duplicate verification** — `_is_true_duplicate()` checks gold-standard `merged_into` mappings
-4. **Corruption detection** — Penalizes changing a correct field to a wrong value (`-0.15`)
+1. **String similarity** — Custom Levenshtein distance implementation
+2. **Numeric closeness** — `_numeric_close()` checks within 1% tolerance
+3. **Duplicate verification** — `_is_true_duplicate()` checks gold-standard mappings
+4. **Corruption detection** — Penalizes changing correct fields to wrong values (−0.15)
 
-### Grader (`grader.py`)
+</details>
 
-The grader module provides deterministic final scoring with three specialized functions:
+<details>
+<summary><strong>📊 Grader — <code>grader.py</code></strong></summary>
 
-- **`_levenshtein_similarity()`** — Pure-Python edit distance for vendor name comparison
-- **`_normalize_to_base_value()`** — Parses unit prefixes (p/n/u/m/k/M/G) and base units (F/H/Ω/V/A/W) for unit-aware comparison
-- **`_are_values_equivalent()`** — Compares two value strings after unit normalization with 1% tolerance
-- **`_normalize_package_string()`** — Strips hyphens, spaces, converts to uppercase for package comparison
-- **`_grade_easy/medium/hard()`** — Task-specific scoring with partial credit
-- **`_grade_quantities()`** — Quantity match accuracy for non-merged rows
+Deterministic final scoring with specialized functions:
 
-### FastAPI Server (`server.py`)
+- `_levenshtein_similarity()` — Pure-Python edit distance for vendor comparison
+- `_normalize_to_base_value()` — Parses unit prefixes (p/n/u/m/k/M/G) and base units
+- `_are_values_equivalent()` — Compares value strings after unit normalization (1% tolerance)
+- `_normalize_package_string()` — Strips hyphens, spaces, converts to uppercase
+- `_grade_easy/medium/hard()` — Task-specific scoring with partial credit
+- `_grade_quantities()` — Quantity match accuracy for non-merged rows
 
-The server provides the HTTP interface and additional features beyond the core environment:
+</details>
 
-**Core OpenEnv Endpoints** (required by spec):
-- `GET /health` — Health check
-- `GET /tasks` — List available tasks
-- `POST /reset?task_id=easy` — Reset environment, returns initial observation
-- `POST /step?task_id=easy` — Execute action, returns step response
-- `GET /state?task_id=easy` — Read current state
+<details>
+<summary><strong>🌐 FastAPI Server — <code>server.py</code></strong></summary>
 
-**Extended Endpoints** (custom features):
-- `POST /upload-bom` — Upload Excel/CSV file as BOM data, with flexible column name mapping (supports 30+ column name aliases like `manufacturer`, `mfr`, `supplier`, `sku`, etc.)
-- `GET /download-template` — Download a sample Excel BOM template
-- `POST /auto-normalize?task_id=easy` — AI-powered auto-normalization using an LLM
+**Core OpenEnv Endpoints** *(required by spec)*:
 
-**Auto-normalize loop** (`/auto-normalize`):
-1. Reads `OPENAI_API_KEY`, `API_BASE_URL`, `MODEL_NAME` from environment
-2. Sends current raw rows (batch of 20) + unique vendor names to the LLM
-3. Parses the LLM JSON response into an `Action`
-4. Executes the action via `env.step()`
-5. Repeats until `fields_remaining == 0`, `done`, or 5 consecutive failures
-6. Returns final observation + error log
+| Method | Endpoint | Description |
+|:---|:---|:---|
+| `GET` | `/health` | Health check |
+| `GET` | `/tasks` | List available tasks |
+| `POST` | `/reset?task_id=easy` | Reset environment |
+| `POST` | `/step?task_id=easy` | Execute action |
+| `GET` | `/state?task_id=easy` | Read current state |
 
-**CORS**: Enabled for all origins (`*`) to allow frontend development.
+**Extended Endpoints** *(custom features)*:
 
-**Server lifecycle**: Uses FastAPI's `lifespan` context manager to pre-initialize environments for all three difficulty levels on startup.
+| Method | Endpoint | Description |
+|:---|:---|:---|
+| `POST` | `/upload-bom` | Upload Excel/CSV file as BOM data |
+| `GET` | `/download-template` | Download sample Excel BOM template |
+| `POST` | `/auto-normalize?task_id=easy` | AI-powered auto-normalization via LLM |
 
-### Task Configs (`tasks.py`)
+**Auto-normalize loop**: Sends batches of 20 raw rows to the LLM, parses JSON responses into actions, and repeats until complete or 5 consecutive failures.
 
-Centralized configuration dictionary for each difficulty level:
+**CORS**: Enabled for all origins (`*`).
+
+</details>
+
+<details>
+<summary><strong>📋 Task Configs — <code>tasks.py</code></strong></summary>
 
 ```python
 TASK_CONFIGS = {
@@ -557,18 +597,20 @@ TASK_CONFIGS = {
 }
 ```
 
-Each task also defines a `baseline_score` (the score an untrained agent should achieve) and `grading_weights`.
+Each task also defines a `baseline_score` and `grading_weights`.
+
+</details>
 
 ---
 
-## Frontend — Deep Dive
+## 🖥️ Frontend — Deep Dive
 
 The frontend is a **React 18 + TypeScript** single-page application built with **Vite** and styled with **Tailwind CSS**.
 
 ### Tech Stack
 
 | Library | Version | Purpose |
-|---------|---------|---------|
+|:---|:---:|:---|
 | React | 18.2 | UI framework |
 | TypeScript | 5.2 | Type safety |
 | Vite | 5.0 | Build tool + dev server |
@@ -579,38 +621,15 @@ The frontend is a **React 18 + TypeScript** single-page application built with *
 
 ### Components
 
-**`App.tsx`** — Main application component:
-- Task difficulty selector (Easy / Medium / Hard)
-- Environment reset button
-- Excel/CSV file upload with drag-and-drop
-- "Auto-Normalize with AI" button with progress polling
-- "Download Normalized BOM" export to Excel
-- Layout container for all child components
-
-**`BOMTable.tsx`** — Interactive data table:
-- Renders all BOM rows with color-coded status indicators
-- Red for `raw`, green for `normalized`, yellow for `flagged`, blue for `merged`
-- Displays vendor, part number, value, package, quantity
-
-**`ActionBuilder.tsx`** — Manual action form:
-- Dropdown for action type selection
-- Dynamic form fields based on selected action
-- Input fields for `row_id`, `new_value`, `from_value`, `field`, `duplicate_row_id`
-- Submit button to send the action to the backend
-
-**`EpisodeStats.tsx`** — Episode progress dashboard:
-- Current step count / max steps
-- Fields remaining counter
-- Cumulative reward display
-- Done state indicator
-
-**`RewardLog.tsx`** — Scrollable reward history:
-- Auto-scrolling log of all rewards received
-- Shows reward value, reason, and cumulative total
+| Component | Description |
+|:---|:---|
+| **`App.tsx`** | Main application — task selector, reset button, file upload, AI normalize, export |
+| **`BOMTable.tsx`** | Interactive data table with color-coded status: 🔴 raw · 🟢 normalized · 🟡 flagged · 🔵 merged |
+| **`ActionBuilder.tsx`** | Dynamic action form with dropdown selection and contextual input fields |
+| **`EpisodeStats.tsx`** | Progress dashboard: steps, fields remaining, cumulative reward, done state |
+| **`RewardLog.tsx`** | Auto-scrolling log of all rewards with value, reason, and cumulative total |
 
 ### API Proxy
-
-Vite is configured to proxy `/api/*` requests to `http://localhost:7860`, stripping the `/api` prefix:
 
 ```typescript
 // vite.config.ts
@@ -625,82 +644,70 @@ proxy: {
 
 ---
 
-## Inference Script
+## 🤖 Inference Script
 
 `inference.py` is the **competition-grade baseline agent** that uses an LLM to normalize BOMs automatically.
 
 ### How It Works
 
-1. **Waits for the environment server** to come online (up to 60 seconds)
+1. **Waits** for the environment server to come online (up to 60s)
 2. **Runs all three tasks** sequentially: `easy` → `medium` → `hard`
 3. **For each task**:
    - Calls `POST /reset` to start a new episode
-   - Loops up to `max_steps` times:
-     - Sends the first 15 raw rows + context to the LLM
-     - Parses the JSON response into an action
-     - Calls `POST /step` with the action
-     - Logs `[STEP]` to stdout per OpenEnv spec
+   - Loops up to `max_steps` times, sending rows to the LLM and executing parsed actions
+   - Logs `[STEP]` to stdout per OpenEnv spec
    - On completion, logs `[END]` with the final score
 
 ### Logging Format (OpenEnv Standard)
 
 ```
 [START] task=easy env=bom-normalizer model=meta-llama/Llama-3.3-70B-Instruct
-[STEP] step=1 action=batch_normalize reward=0.30 done=false error=null
-[STEP] step=2 action=normalize_vendor reward=0.25 done=false error=null
+[STEP]  step=1  action=batch_normalize  reward=0.30  done=false  error=null
+[STEP]  step=2  action=normalize_vendor  reward=0.25  done=false  error=null
 ...
-[END] success=true steps=12 score=0.9500 rewards=0.30,0.25,...
+[END]   success=true  steps=12  score=0.9500  rewards=0.30,0.25,...
 ```
-
-### Configuration
-
-The inference script uses the same environment variables as the server, plus:
-- `HF_TOKEN` — Required for Hugging Face API access
-- `ENV_URL` — Points to the running environment server (default: `http://localhost:7860`)
 
 ---
 
-## Demo Script
+## 🎬 Demo Script
 
-`demo_normalization.py` is an **interactive CLI demo** with colorized terminal output (uses `colorama`):
+`demo_normalization.py` is an **interactive CLI demo** with colorized terminal output:
 
 | Demo | Description |
-|------|-------------|
-| **Demo 1** | Easy task — shows 5 rows, normalizes 3 vendors, displays rewards |
-| **Demo 2** | Medium task — normalizes vendor, value, and package for one row |
-| **Demo 3** | Before/After comparison — normalizes all 10 Easy rows, submits for grading |
-| **Demo 4** | Interactive — lets you press Enter to step through normalization |
-
-Run it with:
+|:---:|:---|
+| **1** | Easy task — shows 5 rows, normalizes 3 vendors, displays rewards |
+| **2** | Medium task — normalizes vendor, value, and package for one row |
+| **3** | Before/After comparison — normalizes all 10 Easy rows, submits for grading |
+| **4** | Interactive — step through normalization with Enter key |
 
 ```bash
-# Start backend first, then:
+# Start the backend first, then:
 python demo_normalization.py
 ```
 
 ---
 
-## Data Files
+## 📁 Data Files
 
-### `data/vendor_aliases.json`
-
-Maps 24 canonical vendor names to their common aliases (140+ total):
+<details>
+<summary><strong><code>data/vendor_aliases.json</code></strong> — 24 vendors, 140+ aliases</summary>
 
 ```json
 {
-  "Texas Instruments": ["TI", "T.I.", "Texas Inst.", "Texas Instru.", "TI Inc", ...],
-  "Murata Manufacturing": ["Murata", "Murata Mfg", "MURATA", ...],
-  "STMicroelectronics": ["ST", "STM", "STMicro", "ST Micro", ...],
-  ...
+  "Texas Instruments": ["TI", "T.I.", "Texas Inst.", "Texas Instru.", "TI Inc"],
+  "Murata Manufacturing": ["Murata", "Murata Mfg", "MURATA"],
+  "STMicroelectronics": ["ST", "STM", "STMicro", "ST Micro"]
 }
 ```
 
-### `data/unit_variants.json`
+</details>
 
-Comprehensive unit variant mappings for 8 measurement categories:
+<details>
+<summary><strong><code>data/unit_variants.json</code></strong> — 8 measurement categories</summary>
 
 | Category | Units Covered |
-|----------|---------------|
+|:---|:---|
 | Resistance | Ω, kΩ, MΩ (+ text variants: ohm, kohm, etc.) |
 | Capacitance | F, mF, µF, nF, pF |
 | Inductance | µH, mH, nH (with multipliers) |
@@ -708,61 +715,51 @@ Comprehensive unit variant mappings for 8 measurement categories:
 | Current | A, mA, µA |
 | Frequency | Hz, kHz, MHz, GHz |
 | Power | W, mW, kW |
-| Length/Weight | mm, cm, m, inch, ft / kg, g, mg, lb, oz |
+| Length / Weight | mm, cm, m, inch, ft / kg, g, mg, lb, oz |
 
-### `data/part_numbers.json`
+</details>
 
-Contains two mappings:
+<details>
+<summary><strong><code>data/part_numbers.json</code></strong> — Canonical parts + package variants</summary>
 
 - **`canonical_parts`** — Maps 10 canonical part numbers to their common variants
   - e.g., `SN74HC00N` → `["74HC00", "74HC00N", "SN74HC00", "HC00"]`
 - **`package_variants`** — Maps 10 canonical package codes to variants
   - e.g., `SOT-23` → `["SOT23", "SOT23-3", "SOT-23-3", "SOT23/3"]`
 
+</details>
+
 ---
 
-## API Reference
+## 📡 API Reference
 
-### `GET /health`
-Health check. Returns `{"status": "ok", "version": "1.0.0"}`.
+| Method | Endpoint | Description |
+|:---|:---|:---|
+| `GET` | `/health` | Returns `{"status": "ok", "version": "1.0.0"}` |
+| `GET` | `/tasks` | List available tasks and descriptions |
+| `POST` | `/reset?task_id={easy\|medium\|hard}` | Reset environment, returns initial `Observation` |
+| `POST` | `/step?task_id={easy\|medium\|hard}` | Execute action, returns `StepResponse` |
+| `GET` | `/state?task_id={easy\|medium\|hard}` | Get current state without advancing |
+| `POST` | `/upload-bom?task_id={easy\|medium\|hard}` | Upload Excel/CSV file (multipart form) |
+| `GET` | `/download-template` | Download sample BOM Excel template |
+| `POST` | `/auto-normalize?task_id={easy\|medium\|hard}` | Run AI auto-normalization |
 
-### `GET /tasks`
-List available tasks and descriptions.
+### Example Request
 
-### `POST /reset?task_id={easy|medium|hard}`
-Reset the environment. Returns initial `Observation`.
-
-### `POST /step?task_id={easy|medium|hard}`
-Execute an action. Body: `Action` JSON. Returns `StepResponse`.
-
-**Example:**
 ```bash
 curl -X POST "http://localhost:7860/step?task_id=easy" \
   -H "Content-Type: application/json" \
   -d '{"action_type": "normalize_vendor", "row_id": 1, "new_value": "Texas Instruments"}'
 ```
 
-### `GET /state?task_id={easy|medium|hard}`
-Get current state without advancing the episode.
-
-### `POST /upload-bom?task_id={easy|medium|hard}`
-Upload Excel/CSV file. Multipart form with `file` field.
-
-### `GET /download-template`
-Download a sample BOM Excel template.
-
-### `POST /auto-normalize?task_id={easy|medium|hard}`
-Run AI auto-normalization. Requires LLM API credentials in env vars.
-
-### Interactive Docs
-Visit **http://localhost:7860/docs** for the auto-generated Swagger UI.
+> 📖 **Interactive Docs**: Visit **http://localhost:7860/docs** for the auto-generated Swagger UI.
 
 ---
 
-## Configuration Files
+## ⚙️ Configuration Files
 
 | File | Purpose |
-|------|---------|
+|:---|:---|
 | `pyproject.toml` | Python project metadata, dependencies, build system, ruff/pytest config |
 | `requirements.txt` | Pinned production dependencies |
 | `openenv.yaml` | OpenEnv environment specification (tasks, action/obs space, reward, endpoints) |
@@ -775,7 +772,7 @@ Visit **http://localhost:7860/docs** for the auto-generated Swagger UI.
 
 ---
 
-## Development
+## 🛠️ Development
 
 ### Running Tests
 
@@ -792,11 +789,10 @@ ruff check .
 
 ### Code Quality
 
-The project uses:
-- **Ruff** for Python linting (line length: 100, target: Python 3.10)
-- **TypeScript strict mode** for frontend type checking
-- **Pydantic v2 strict validation** (`extra='forbid'`) for API models
-- **ESLint** for frontend code quality
+- **Ruff** — Python linting (line length: 100, target: Python 3.10)
+- **TypeScript strict mode** — Frontend type checking
+- **Pydantic v2 strict validation** — `extra='forbid'` for API models
+- **ESLint** — Frontend code quality
 
 ### Adding New Vendors
 
@@ -813,13 +809,12 @@ The project uses:
 
 ---
 
-## License
+## 📄 License
 
-This project is licensed under the **MIT License**. See the [pyproject.toml](pyproject.toml) for full metadata.
+This project is licensed under the **MIT License**. See [pyproject.toml](pyproject.toml) for full metadata.
 
 ---
 
 <p align="center">
   Built with 🧪 by <strong>Team Quasars</strong> for OpenEnv Hackathon 2025
 </p>
-]]>
